@@ -1206,7 +1206,6 @@ function openBatchUploadModal(items){
     closeModal();
     renderFilters();renderGallery();renderMiniGallery();renderAssetPicker();
     toast("已添加 "+items.length+" 张素材到素材库");
-    if(typeof TRACKER!=="undefined") TRACKER.log({type:"upload",meta:{count:items.length,cat}});
   };
 }
 
@@ -1767,7 +1766,6 @@ function renderGenResults(){
           persistUserAssets();
           renderFilters();renderGallery();renderMiniGallery();renderAssetPicker();
           toast("已存入素材库，可在素材库 tab 查看");
-          if(typeof TRACKER!=="undefined") TRACKER.log({type:"save_to_gallery",meta:{source:"gen_result"},prompt:r.prompt});
         }
         if(btn.dataset.act==="del"){genResults.splice(idx,1);renderGenResults()}
       };
@@ -1803,15 +1801,11 @@ $("#btnGenerate").onclick=async()=>{
     $("#genProgressFill").style.width=((i)/count*100)+"%";
     $("#genStatus").textContent=`正在生成第 ${i+1}/${count} 张…`;
 
-    const _provider=$("#aiProvider").value;
-    const _model=$("#aiModel")?.value||"";
     try{
       const url=await callImageApi(prompt,refBase64);
       if(genResults[idx]) genResults[idx]={status:"done",prompt,dataUrl:url};
-      TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"success",meta:{hasRef:!!refBase64}});
     }catch(e){
       if(genResults[idx]) genResults[idx]={status:"failed",prompt,error:e.message||"未知错误"};
-      TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"failed",error:e.message||"未知错误"});
     }
     renderGenResults();
     $("#genProgressFill").style.width=((i+1)/count*100)+"%";
@@ -1945,7 +1939,6 @@ function renderHistory(){
           persistUserAssets();
           renderFilters();renderGallery();renderMiniGallery();renderAssetPicker();
           toast("已存入素材库");
-          if(typeof TRACKER!=="undefined") TRACKER.log({type:"save_to_gallery",meta:{source:"history"},prompt:item.prompt||""});
         }
         if(act==="reuse"){
           const p=item.prompt||"";
@@ -2025,95 +2018,12 @@ $("#btnClearHistory").onclick=()=>{
   saveHistory([]);renderHistory();toast("历史已清空");
 };
 
-/* ══════════════════════ USAGE TRACKER ══════════════════════ */
-const TRACKER=(function(){
-  const URL="https://pznlbrtormfulrhmukwv.supabase.co";
-  const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6bmxicnRvcm1mdWxyaG11a3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NTg5NjQsImV4cCI6MjA5NDIzNDk2NH0.w8nUGu9AfAewGM3c8UDUCEIkKN5EtclZa1R1rNTNaIw";
-  const HEADERS={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=minimal"};
-  const DEVICE_KEY="sd_device_id",NICK_KEY="sd_nickname";
-  let deviceId=localStorage.getItem(DEVICE_KEY)||"";
-  let nickname=localStorage.getItem(NICK_KEY)||"";
-
-  function uuid(){
-    if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
-    return "id-"+Math.random().toString(36).slice(2)+"-"+Date.now();
-  }
-  function ensureDeviceId(){
-    if(!deviceId){deviceId=uuid();localStorage.setItem(DEVICE_KEY,deviceId)}
-  }
-  function ensureNicknameModal(){
-    return new Promise(resolve=>{
-      if(nickname)return resolve(nickname);
-      const ov=document.createElement("div");
-      ov.style.cssText="position:fixed;inset:0;z-index:999999;background:rgba(8,8,12,.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s";
-      const box=document.createElement("div");
-      box.style.cssText="background:#17171F;border:1px solid rgba(216,171,72,.2);border-radius:20px;padding:36px 32px;width:90%;max-width:440px;box-shadow:0 16px 56px rgba(0,0,0,.7);text-align:center;color:#EDE9E0;font-family:Outfit,'PingFang SC',sans-serif";
-      box.innerHTML=`
-        <div style="font-size:2rem;margin-bottom:6px">👋</div>
-        <h2 style="color:#F0CC6A;font-size:1.15rem;margin-bottom:10px;letter-spacing:.5px;font-weight:600">欢迎使用素材生成工具</h2>
-        <p style="color:#8E8A9C;font-size:.8125rem;margin-bottom:20px;line-height:1.65">请填写一个昵称，方便后续协作沟通<br/><span style="color:#5A566A;font-size:.7rem">仅在本地保存，只需填一次</span></p>
-        <input id="tkNickInput" type="text" placeholder="例如：张三 / 设计师小李" maxlength="20" style="width:100%;padding:13px 16px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:#1E1E28;color:#EDE9E0;font-size:.9rem;font-family:inherit;text-align:center;outline:none;transition:.25s"/>
-        <button id="tkNickConfirm" style="margin-top:14px;width:100%;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#D8AB48,#C89530);color:#0B0B11;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s">开始使用</button>
-      `;
-      ov.appendChild(box);document.body.appendChild(ov);
-      const input=box.querySelector("#tkNickInput");
-      const btn=box.querySelector("#tkNickConfirm");
-      setTimeout(()=>input.focus(),120);
-      input.onfocus=()=>{input.style.borderColor="rgba(216,171,72,.45)";input.style.boxShadow="0 0 0 3px rgba(216,171,72,.12)"};
-      input.onblur=()=>{input.style.boxShadow="none"};
-      function go(){
-        const v=input.value.trim();
-        if(!v){input.style.borderColor="#FF7B7B";input.placeholder="请输入昵称";return}
-        nickname=v;localStorage.setItem(NICK_KEY,v);ov.remove();resolve(v);
-      }
-      btn.onclick=go;
-      input.onkeydown=(e)=>{if(e.key==="Enter")go()};
-    });
-  }
-  async function upsertUser(){
-    if(!deviceId||!nickname)return;
-    try{
-      await fetch(URL+"/rest/v1/tracker_users?on_conflict=device_id",{
-        method:"POST",
-        headers:{...HEADERS,"Prefer":"resolution=merge-duplicates,return=minimal"},
-        body:JSON.stringify({device_id:deviceId,nickname:nickname,user_agent:navigator.userAgent,last_seen:new Date().toISOString()})
-      });
-    }catch(e){}
-  }
-  function log(ev){
-    if(!deviceId)ensureDeviceId();
-    const body={
-      device_id:deviceId,
-      nickname:nickname||"未命名",
-      event_type:ev.type||"unknown",
-      provider:ev.provider||null,
-      model:ev.model||null,
-      prompt_preview:(ev.prompt||"").substring(0,300)||null,
-      status:ev.status||null,
-      error_msg:ev.error||null,
-      meta:ev.meta||null
-    };
-    try{
-      fetch(URL+"/rest/v1/tracker_events",{method:"POST",headers:HEADERS,body:JSON.stringify(body)});
-    }catch(e){}
-  }
-  async function init(){
-    ensureDeviceId();
-    await ensureNicknameModal();
-    upsertUser();
-    log({type:"visit"});
-  }
-  function getNickname(){return nickname}
-  return {init,log,getNickname};
-})();
-
 /* ══════════════════════ INIT ══════════════════════ */
 renderFilters();renderGallery("全部");renderMiniGallery();updatePreview();renderManualBatch();
 renderScenePresets();renderRefImages();renderAssetPicker();buildPrompt();renderHistory();
 if($("#aiKey").value.trim()){
   setTimeout(()=>{$("#btnTestApi").click()},350);
 }
-TRACKER.init();
 </script>
 </body>
 </html>
