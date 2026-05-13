@@ -1306,6 +1306,11 @@ function pickAssetForPrompt(a){
     $("#aiPosition").value=f.position;
     $("#aiRelation").value=f.relation;
     toast("已加载「"+pickedAsset.label+"」的 Prompt");
+    if(typeof TRACKER!=="undefined") TRACKER.log({
+      type:"asset_click",
+      prompt:p,
+      meta:{label:pickedAsset.label,cat:pickedAsset.cat||"",source:pickedAsset.file?"user_upload":"builtin"}
+    });
   }
 }
 
@@ -2030,9 +2035,20 @@ const TRACKER=(function(){
   const URL="https://pznlbrtormfulrhmukwv.supabase.co";
   const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6bmxicnRvcm1mdWxyaG11a3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NTg5NjQsImV4cCI6MjA5NDIzNDk2NH0.w8nUGu9AfAewGM3c8UDUCEIkKN5EtclZa1R1rNTNaIw";
   const HEADERS={"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=minimal"};
-  const DEVICE_KEY="sd_device_id",NICK_KEY="sd_nickname";
+
+  const DEVICE_KEY="sd_device_id",ERP_KEY="sd_erp",ROLE_KEY="sd_role",BIZ_KEY="sd_business";
+  const CUSTOM_ROLES_KEY="sd_custom_roles",CUSTOM_BIZ_KEY="sd_custom_business";
+
+  const DEFAULT_ROLES=["设计","运营","产品","前端"];
+  const DEFAULT_BIZ=["金条","白条","搜索","理财频道","基金","保险"];
+
   let deviceId=localStorage.getItem(DEVICE_KEY)||"";
-  let nickname=localStorage.getItem(NICK_KEY)||"";
+  let erp=localStorage.getItem(ERP_KEY)||"";
+  let role=localStorage.getItem(ROLE_KEY)||"";
+  let business=localStorage.getItem(BIZ_KEY)||"";
+
+  function loadCustomList(k){try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}}
+  function saveCustomList(k,arr){localStorage.setItem(k,JSON.stringify(arr))}
 
   function uuid(){
     if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
@@ -2041,70 +2057,156 @@ const TRACKER=(function(){
   function ensureDeviceId(){
     if(!deviceId){deviceId=uuid();localStorage.setItem(DEVICE_KEY,deviceId)}
   }
-  function ensureNicknameModal(){
+
+  function buildSelectGroup(label,defaults,custom,placeholder){
+    const all=[...defaults,...custom];
+    const opts=all.map(v=>`<option value="${v}">${v}</option>`).join("");
+    return `
+      <div style="margin-bottom:14px;text-align:left">
+        <label style="display:block;font-size:.72rem;color:#8E8A9C;margin-bottom:6px;letter-spacing:.4px">${label}</label>
+        <div style="display:flex;gap:8px">
+          <select class="tk-select" style="flex:1;padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#1E1E28;color:#EDE9E0;font-size:.85rem;font-family:inherit;outline:none;cursor:pointer">
+            <option value="">${placeholder}</option>
+            ${opts}
+            <option value="__custom__">+ 自定义…</option>
+          </select>
+          <input class="tk-custom" type="text" maxlength="20" placeholder="输入新${label}" style="display:none;flex:1;padding:11px 12px;border:1px solid rgba(216,171,72,.4);border-radius:10px;background:#1E1E28;color:#EDE9E0;font-size:.85rem;font-family:inherit;outline:none"/>
+          <button class="tk-back" type="button" style="display:none;padding:0 10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#13131A;color:#8E8A9C;cursor:pointer;font-family:inherit;font-size:.75rem">↶</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function ensureProfileModal(){
     return new Promise(resolve=>{
-      if(nickname)return resolve(nickname);
+      if(erp&&role&&business)return resolve();
+
       const ov=document.createElement("div");
-      ov.style.cssText="position:fixed;inset:0;z-index:999999;background:rgba(8,8,12,.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;animation:fadeIn .25s";
+      ov.style.cssText="position:fixed;inset:0;z-index:999999;background:rgba(8,8,12,.88);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s";
       const box=document.createElement("div");
-      box.style.cssText="background:#17171F;border:1px solid rgba(216,171,72,.2);border-radius:20px;padding:36px 32px;width:90%;max-width:440px;box-shadow:0 16px 56px rgba(0,0,0,.7);text-align:center;color:#EDE9E0;font-family:Outfit,'PingFang SC',sans-serif";
+      box.style.cssText="background:#17171F;border:1px solid rgba(216,171,72,.22);border-radius:22px;padding:32px 30px 28px;width:100%;max-width:460px;box-shadow:0 20px 64px rgba(0,0,0,.7);color:#EDE9E0;font-family:Outfit,'PingFang SC',sans-serif";
       box.innerHTML=`
-        <div style="font-size:2rem;margin-bottom:6px">👋</div>
-        <h2 style="color:#F0CC6A;font-size:1.15rem;margin-bottom:10px;letter-spacing:.5px;font-weight:600">欢迎使用素材生成工具</h2>
-        <p style="color:#8E8A9C;font-size:.8125rem;margin-bottom:20px;line-height:1.65">请填写一个昵称，方便后续协作沟通<br/><span style="color:#5A566A;font-size:.7rem">仅在本地保存，只需填一次</span></p>
-        <input id="tkNickInput" type="text" placeholder="例如：张三 / 设计师小李" maxlength="20" style="width:100%;padding:13px 16px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:#1E1E28;color:#EDE9E0;font-size:.9rem;font-family:inherit;text-align:center;outline:none;transition:.25s"/>
-        <button id="tkNickConfirm" style="margin-top:14px;width:100%;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#D8AB48,#C89530);color:#0B0B11;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s">开始使用</button>
+        <div style="text-align:center;margin-bottom:22px">
+          <div style="font-size:1.9rem;margin-bottom:4px">👋</div>
+          <h2 style="color:#F0CC6A;font-size:1.15rem;letter-spacing:.5px;font-weight:600;margin-bottom:6px">欢迎使用素材生成工具</h2>
+          <p style="color:#8E8A9C;font-size:.78rem;line-height:1.6">请填写以下信息，方便协作沟通和素材溯源<br/><span style="color:#5A566A;font-size:.7rem">仅本地保存，只需填一次</span></p>
+        </div>
+
+        <div id="tkErpField" style="margin-bottom:14px;text-align:left">
+          <label style="display:block;font-size:.72rem;color:#8E8A9C;margin-bottom:6px;letter-spacing:.4px">ERP（员工号）</label>
+          <input id="tkErpInput" type="text" placeholder="例如：zhangsan01" maxlength="32" style="width:100%;padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#1E1E28;color:#EDE9E0;font-size:.85rem;font-family:inherit;outline:none;transition:.25s"/>
+        </div>
+
+        <div id="tkRoleField">${buildSelectGroup("角色",DEFAULT_ROLES,loadCustomList(CUSTOM_ROLES_KEY),"请选择角色")}</div>
+        <div id="tkBizField">${buildSelectGroup("业务线",DEFAULT_BIZ,loadCustomList(CUSTOM_BIZ_KEY),"请选择业务线")}</div>
+
+        <button id="tkProfileConfirm" type="button" style="margin-top:8px;width:100%;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#D8AB48,#C89530);color:#0B0B11;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;letter-spacing:.5px">开始使用</button>
+        <p id="tkProfileErr" style="color:#FF7B7B;font-size:.72rem;margin-top:10px;text-align:center;min-height:16px"></p>
       `;
       ov.appendChild(box);document.body.appendChild(ov);
-      const input=box.querySelector("#tkNickInput");
-      const btn=box.querySelector("#tkNickConfirm");
-      setTimeout(()=>input.focus(),120);
-      input.onfocus=()=>{input.style.borderColor="rgba(216,171,72,.45)";input.style.boxShadow="0 0 0 3px rgba(216,171,72,.12)"};
-      input.onblur=()=>{input.style.boxShadow="none"};
-      function go(){
-        const v=input.value.trim();
-        if(!v){input.style.borderColor="#FF7B7B";input.placeholder="请输入昵称";return}
-        nickname=v;localStorage.setItem(NICK_KEY,v);ov.remove();resolve(v);
+
+      const erpInput=box.querySelector("#tkErpInput");
+      const err=box.querySelector("#tkProfileErr");
+      setTimeout(()=>erpInput.focus(),120);
+      erpInput.onfocus=()=>{erpInput.style.borderColor="rgba(216,171,72,.45)";erpInput.style.boxShadow="0 0 0 3px rgba(216,171,72,.1)"};
+      erpInput.onblur=()=>{erpInput.style.boxShadow="none"};
+
+      function wireSelectGroup(wrap,customKey){
+        const sel=wrap.querySelector(".tk-select");
+        const custom=wrap.querySelector(".tk-custom");
+        const back=wrap.querySelector(".tk-back");
+        sel.onchange=()=>{
+          if(sel.value==="__custom__"){
+            sel.style.display="none";
+            custom.style.display="block";
+            back.style.display="block";
+            setTimeout(()=>custom.focus(),50);
+          }
+        };
+        back.onclick=()=>{
+          custom.value="";custom.style.display="none";back.style.display="none";
+          sel.value="";sel.style.display="block";
+        };
+        return {getValue(){
+          if(custom.style.display!=="none"){
+            const v=custom.value.trim();
+            if(v){
+              const arr=loadCustomList(customKey);
+              if(!arr.includes(v)){arr.push(v);saveCustomList(customKey,arr)}
+            }
+            return v;
+          }
+          return sel.value==="__custom__"?"":sel.value;
+        }};
       }
-      btn.onclick=go;
-      input.onkeydown=(e)=>{if(e.key==="Enter")go()};
+
+      const roleGroup=wireSelectGroup(box.querySelector("#tkRoleField"),CUSTOM_ROLES_KEY);
+      const bizGroup=wireSelectGroup(box.querySelector("#tkBizField"),CUSTOM_BIZ_KEY);
+
+      box.querySelector("#tkProfileConfirm").onclick=()=>{
+        const erpV=erpInput.value.trim();
+        const roleV=roleGroup.getValue();
+        const bizV=bizGroup.getValue();
+        if(!erpV){err.textContent="请填写 ERP";erpInput.style.borderColor="#FF7B7B";return}
+        if(!roleV){err.textContent="请选择或填写角色";return}
+        if(!bizV){err.textContent="请选择或填写业务线";return}
+        erp=erpV;role=roleV;business=bizV;
+        localStorage.setItem(ERP_KEY,erp);
+        localStorage.setItem(ROLE_KEY,role);
+        localStorage.setItem(BIZ_KEY,business);
+        ov.remove();resolve();
+      };
     });
   }
+
   async function upsertUser(){
-    if(!deviceId||!nickname)return;
+    if(!deviceId||!erp)return;
     try{
       await fetch(URL+"/rest/v1/tracker_users?on_conflict=device_id",{
         method:"POST",
         headers:{...HEADERS,"Prefer":"resolution=merge-duplicates,return=minimal"},
-        body:JSON.stringify({device_id:deviceId,nickname:nickname,user_agent:navigator.userAgent,last_seen:new Date().toISOString()})
+        body:JSON.stringify({
+          device_id:deviceId,
+          nickname:erp,
+          erp:erp,
+          role:role||null,
+          business_line:business||null,
+          user_agent:navigator.userAgent,
+          last_seen:new Date().toISOString()
+        })
       });
     }catch(e){}
   }
+
   function log(ev){
     if(!deviceId)ensureDeviceId();
+    const meta=Object.assign({},ev.meta||{});
+    if(role)meta._role=role;
+    if(business)meta._business=business;
     const body={
       device_id:deviceId,
-      nickname:nickname||"未命名",
+      nickname:erp||"未命名",
       event_type:ev.type||"unknown",
       provider:ev.provider||null,
       model:ev.model||null,
       prompt_preview:(ev.prompt||"").substring(0,300)||null,
       status:ev.status||null,
       error_msg:ev.error||null,
-      meta:ev.meta||null
+      meta:meta
     };
     try{
       fetch(URL+"/rest/v1/tracker_events",{method:"POST",headers:HEADERS,body:JSON.stringify(body)});
     }catch(e){}
   }
+
   async function init(){
     ensureDeviceId();
-    await ensureNicknameModal();
+    await ensureProfileModal();
     upsertUser();
     log({type:"visit"});
   }
-  function getNickname(){return nickname}
-  return {init,log,getNickname};
+  function getProfile(){return {erp,role,business,deviceId}}
+  return {init,log,getProfile};
 })();
 
 /* ══════════════════════ INIT ══════════════════════ */

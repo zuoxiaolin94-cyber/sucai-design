@@ -219,6 +219,7 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
         <option value="">全部</option>
         <option value="visit">访问</option>
         <option value="generate">生成</option>
+        <option value="asset_click">点击素材</option>
         <option value="upload">上传素材</option>
         <option value="save_to_gallery">存入素材库</option>
       </select>
@@ -228,8 +229,8 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
         <option value="success">成功</option>
         <option value="failed">失败</option>
       </select>
-      <label>用户</label>
-      <input id="filterNick" type="text" placeholder="昵称关键字"/>
+      <label>ERP</label>
+      <input id="filterNick" type="text" placeholder="ERP 关键字"/>
       <label>关键词</label>
       <input id="filterPrompt" type="text" placeholder="Prompt 关键字"/>
       <div class="spacer"></div>
@@ -239,16 +240,18 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
       <table>
         <thead>
           <tr>
-            <th style="width:160px">时间</th>
-            <th style="width:140px">昵称</th>
+            <th style="width:140px">时间</th>
+            <th style="width:110px">ERP</th>
+            <th style="width:90px">角色</th>
+            <th style="width:100px">业务线</th>
             <th style="width:100px">事件</th>
-            <th style="width:110px">服务商</th>
-            <th style="width:90px">状态</th>
-            <th>Prompt / 备注</th>
+            <th style="width:100px">服务商</th>
+            <th style="width:80px">状态</th>
+            <th>Prompt / 素材 / 备注</th>
           </tr>
         </thead>
         <tbody id="eventsBody">
-          <tr><td colspan="6" class="loading">加载中…</td></tr>
+          <tr><td colspan="8" class="loading">加载中…</td></tr>
         </tbody>
       </table>
     </div>
@@ -263,7 +266,11 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
   <div class="section" id="sec-users">
     <div class="filters">
       <label>搜索</label>
-      <input id="userSearch" type="text" placeholder="昵称关键字"/>
+      <input id="userSearch" type="text" placeholder="ERP 关键字"/>
+      <label>角色</label>
+      <select id="userRoleFilter"><option value="">全部</option></select>
+      <label>业务线</label>
+      <select id="userBizFilter"><option value="">全部</option></select>
       <div class="spacer"></div>
       <span style="font-size:.75rem;color:var(--text-mute)" id="userCount"></span>
     </div>
@@ -271,16 +278,18 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
       <table>
         <thead>
           <tr>
-            <th>昵称</th>
-            <th>设备 ID</th>
+            <th>ERP</th>
+            <th>角色</th>
+            <th>业务线</th>
             <th>首次访问</th>
             <th>最近活跃</th>
             <th>操作数</th>
             <th>成功生成</th>
+            <th>点击素材</th>
           </tr>
         </thead>
         <tbody id="usersBody">
-          <tr><td colspan="6" class="loading">加载中…</td></tr>
+          <tr><td colspan="8" class="loading">加载中…</td></tr>
         </tbody>
       </table>
     </div>
@@ -408,8 +417,8 @@ async function loadEvents(){
   if(evFilters.prompt) q = q.ilike("prompt_preview", `%${evFilters.prompt}%`);
   const { data, error, count } = await q;
   const tbody = $("#eventsBody");
-  if(error){tbody.innerHTML=`<tr><td colspan="6" class="empty">加载失败：${error.message}</td></tr>`;return}
-  if(!data||!data.length){tbody.innerHTML=`<tr><td colspan="6" class="empty">暂无数据</td></tr>`;}
+  if(error){tbody.innerHTML=`<tr><td colspan="8" class="empty">加载失败：${error.message}</td></tr>`;return}
+  if(!data||!data.length){tbody.innerHTML=`<tr><td colspan="8" class="empty">暂无数据</td></tr>`;}
   else {
     tbody.innerHTML = data.map(rowToEventTr).join("");
   }
@@ -422,24 +431,45 @@ async function loadEvents(){
 
 function rowToEventTr(r){
   const t = new Date(r.created_at);
-  const time = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`;
-  const evMap = {"generate":"生成","upload":"上传","visit":"访问","save_to_gallery":"存素材"};
-  const evClass = {"generate":"gold","upload":"blue","visit":"","save_to_gallery":"success"};
+  const time = `${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")} ${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`;
+  const evMap = {"generate":"生成","upload":"上传","visit":"访问","save_to_gallery":"存素材","asset_click":"点击素材"};
+  const evClass = {"generate":"gold","upload":"blue","visit":"","save_to_gallery":"success","asset_click":"blue"};
   const ev = `<span class="pill ${evClass[r.event_type]||""}">${evMap[r.event_type]||r.event_type}</span>`;
   const provMap = {"jimeng":"即梦","gemini":"Gemini","qwen":"千问","openai":"OpenAI"};
   const prov = r.provider ? `<span class="pill">${provMap[r.provider]||r.provider}</span>` : '<span class="mono">—</span>';
   let st = '<span class="mono">—</span>';
   if(r.status==="success") st = '<span class="pill success">成功</span>';
   else if(r.status==="failed") st = '<span class="pill failed">失败</span>';
-  const prompt = r.prompt_preview || r.error_msg || (r.meta ? JSON.stringify(r.meta) : "");
-  const promptCell = prompt ? `<span class="prompt-cell" title="${esc(prompt)}">${esc(prompt)}</span>` : '<span class="mono">—</span>';
+
+  const meta = r.meta || {};
+  const role = meta._role || "";
+  const biz = meta._business || "";
+  const roleCell = role ? `<span class="pill">${esc(role)}</span>` : '<span class="mono">—</span>';
+  const bizCell = biz ? `<span class="pill blue">${esc(biz)}</span>` : '<span class="mono">—</span>';
+
+  let mainCell = "";
+  if(r.event_type==="asset_click"){
+    const lbl = meta.label || "";
+    const src = meta.source==="user_upload" ? "用户上传" : (meta.source==="builtin"?"内置":"");
+    mainCell = `<span class="prompt-cell" title="${esc(lbl+" · "+(r.prompt_preview||""))}">📷 ${esc(lbl)}${src?` <span class="tag-chip">${src}</span>`:""} <span class="mono">${esc((r.prompt_preview||"").slice(0,60))}</span></span>`;
+  }else if(r.event_type==="upload"){
+    mainCell = `<span class="mono">上传 ${meta.count||"?"} 张 · 分类: ${esc(meta.cat||"-")}</span>`;
+  }else if(r.event_type==="save_to_gallery"){
+    mainCell = `<span class="prompt-cell" title="${esc(r.prompt_preview||"")}">来自: ${esc(meta.source||"-")} · ${esc((r.prompt_preview||"").slice(0,80))}</span>`;
+  }else{
+    const prompt = r.prompt_preview || r.error_msg || "";
+    mainCell = prompt ? `<span class="prompt-cell" title="${esc(prompt)}">${esc(prompt)}</span>` : '<span class="mono">—</span>';
+  }
+
   return `<tr>
     <td class="mono">${time}</td>
     <td class="nick">${esc(r.nickname||"未命名")}</td>
+    <td>${roleCell}</td>
+    <td>${bizCell}</td>
     <td>${ev}</td>
     <td>${prov}</td>
     <td>${st}</td>
-    <td>${promptCell}</td>
+    <td>${mainCell}</td>
   </tr>`;
 }
 
@@ -454,7 +484,7 @@ $("#evPrev").onclick = ()=>{if(evPage>0){evPage--;loadEvents()}};
 $("#evNext").onclick = ()=>{evPage++;loadEvents()};
 
 $("#btnExportCsv").onclick = async ()=>{
-  let q = sb.from("tracker_events").select("created_at,nickname,device_id,event_type,provider,model,status,prompt_preview,error_msg")
+  let q = sb.from("tracker_events").select("created_at,nickname,device_id,event_type,provider,model,status,prompt_preview,error_msg,meta")
     .order("created_at",{ascending:false}).limit(5000);
   if(evFilters.type) q = q.eq("event_type", evFilters.type);
   if(evFilters.status) q = q.eq("status", evFilters.status);
@@ -462,11 +492,16 @@ $("#btnExportCsv").onclick = async ()=>{
   if(evFilters.prompt) q = q.ilike("prompt_preview", `%${evFilters.prompt}%`);
   const { data, error } = await q;
   if(error){alert("导出失败："+error.message);return}
-  const header = ["时间","昵称","设备ID","事件","服务商","模型","状态","Prompt","错误"];
-  const rows = (data||[]).map(r=>[
-    r.created_at, r.nickname, r.device_id, r.event_type, r.provider, r.model, r.status,
-    (r.prompt_preview||"").replace(/\n/g," "), r.error_msg||""
-  ]);
+  const header = ["时间","ERP","角色","业务线","设备ID","事件","服务商","模型","状态","Prompt","素材名","错误"];
+  const rows = (data||[]).map(r=>{
+    const m = r.meta||{};
+    return [
+      r.created_at, r.nickname, m._role||"", m._business||"",
+      r.device_id, r.event_type, r.provider, r.model, r.status,
+      (r.prompt_preview||"").replace(/\n/g," "),
+      m.label||"", r.error_msg||""
+    ];
+  });
   const csv = [header, ...rows].map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob = new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
   const url = URL.createObjectURL(blob);
@@ -478,46 +513,67 @@ $("#btnExportCsv").onclick = async ()=>{
 /* ================= Users ================= */
 async function loadUsers(){
   const { data:users, error } = await sb.from("tracker_users").select("*").order("last_seen",{ascending:false}).limit(500);
-  if(error){$("#usersBody").innerHTML=`<tr><td colspan="6" class="empty">加载失败：${error.message}</td></tr>`;return}
+  if(error){$("#usersBody").innerHTML=`<tr><td colspan="8" class="empty">加载失败：${error.message}</td></tr>`;return}
 
-  // get event counts per device
   const { data:counts } = await sb.from("tracker_events")
-    .select("device_id,event_type,status").limit(5000);
+    .select("device_id,event_type,status").limit(8000);
   const stats = {};
   (counts||[]).forEach(c=>{
-    if(!stats[c.device_id]) stats[c.device_id]={total:0,gen:0};
+    if(!stats[c.device_id]) stats[c.device_id]={total:0,gen:0,click:0};
     stats[c.device_id].total++;
     if(c.event_type==="generate"&&c.status==="success") stats[c.device_id].gen++;
+    if(c.event_type==="asset_click") stats[c.device_id].click++;
   });
 
   allUsers = (users||[]).map(u=>({
     ...u,
     total: stats[u.device_id]?.total||0,
-    gen: stats[u.device_id]?.gen||0
+    gen: stats[u.device_id]?.gen||0,
+    click: stats[u.device_id]?.click||0
   }));
+
+  const roleSel = $("#userRoleFilter");
+  const bizSel = $("#userBizFilter");
+  const roles = [...new Set(allUsers.map(u=>u.role).filter(Boolean))];
+  const bizs = [...new Set(allUsers.map(u=>u.business_line).filter(Boolean))];
+  roleSel.innerHTML = '<option value="">全部</option>' + roles.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("");
+  bizSel.innerHTML = '<option value="">全部</option>' + bizs.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join("");
+
   renderUsers();
 }
 
 function renderUsers(){
   const kw = $("#userSearch").value.trim().toLowerCase();
-  const filtered = kw ? allUsers.filter(u=>(u.nickname||"").toLowerCase().includes(kw)) : allUsers;
+  const roleFilter = $("#userRoleFilter").value;
+  const bizFilter = $("#userBizFilter").value;
+  let filtered = allUsers;
+  if(kw) filtered = filtered.filter(u=>(u.erp||u.nickname||"").toLowerCase().includes(kw));
+  if(roleFilter) filtered = filtered.filter(u=>u.role===roleFilter);
+  if(bizFilter) filtered = filtered.filter(u=>u.business_line===bizFilter);
   $("#userCount").textContent = `共 ${filtered.length} 位用户`;
-  if(!filtered.length){$("#usersBody").innerHTML=`<tr><td colspan="6" class="empty">暂无数据</td></tr>`;return}
+  if(!filtered.length){$("#usersBody").innerHTML=`<tr><td colspan="8" class="empty">暂无数据</td></tr>`;return}
   $("#usersBody").innerHTML = filtered.map(u=>{
     const first = u.created_at ? fmtDate(u.created_at) : "—";
     const last = u.last_seen ? fmtDate(u.last_seen) : "—";
+    const erpV = u.erp || u.nickname || "未命名";
+    const roleV = u.role ? `<span class="pill">${esc(u.role)}</span>` : '<span class="mono">—</span>';
+    const bizV = u.business_line ? `<span class="pill blue">${esc(u.business_line)}</span>` : '<span class="mono">—</span>';
     return `<tr>
-      <td class="nick">${esc(u.nickname||"未命名")}</td>
-      <td class="mono" title="${esc(u.device_id)}">${esc((u.device_id||"").slice(0,18))}…</td>
+      <td class="nick" title="${esc(u.device_id||"")}">${esc(erpV)}</td>
+      <td>${roleV}</td>
+      <td>${bizV}</td>
       <td class="mono">${first}</td>
       <td class="mono">${last}</td>
       <td><span class="pill">${u.total}</span></td>
       <td><span class="pill gold">${u.gen}</span></td>
+      <td><span class="pill">${u.click}</span></td>
     </tr>`;
   }).join("");
 }
 
 $("#userSearch").oninput = renderUsers;
+$("#userRoleFilter").onchange = renderUsers;
+$("#userBizFilter").onchange = renderUsers;
 
 function fmtDate(s){
   const d = new Date(s);
