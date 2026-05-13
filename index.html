@@ -641,15 +641,33 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
         </select>
         <p class="hint">中国大陆和海外的 API Key 不通用，请按申请地域选择</p>
       </div>
-      <div class="field">
+      <div class="field" id="fieldSingleKey">
         <label>API Key</label>
         <div class="api-key-wrap">
-          <input type="password" id="aiKey" placeholder="AccessKey|SecretKey" value=""/>
+          <input type="password" id="aiKey" placeholder="填写 API Key" value=""/>
           <button class="toggle-eye" id="toggleKeyEye">👁</button>
         </div>
         <p class="hint" id="keyHint">填写你自己的 API Key</p>
-        <p class="hint" id="keyPersistHint">Key 会保存在当前浏览器本地，下次打开自动填充（不会上传到你的服务器）</p>
       </div>
+
+      <div class="field" id="fieldJimengKey" style="display:none">
+        <label>即梦 API 凭证 <span style="color:var(--muted);font-weight:400;font-size:.7rem">（两段独立填写，无需 | 分隔）</span></label>
+        <div class="api-key-wrap" style="margin-bottom:8px">
+          <input type="text" id="aiAccessKey" placeholder="AccessKey ID（通常以 AKLT 开头，约 32 位）" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="api-key-wrap">
+          <input type="password" id="aiSecretKey" placeholder="Secret AccessKey（base64 字符串，约 50 位，以 == 结尾）" autocomplete="off" spellcheck="false"/>
+          <button class="toggle-eye" id="toggleSecretEye">👁</button>
+        </div>
+        <p class="hint" id="jimengParseHint" style="display:none;color:var(--gold-l)">检测到你粘贴了 <code>AK|SK</code> 组合格式，已自动拆分到两个字段</p>
+      </div>
+
+      <details id="keyHelpBox" style="margin-top:10px;background:rgba(216,171,72,.04);border:1px solid rgba(216,171,72,.18);border-radius:10px;padding:10px 12px;font-size:.78rem;color:var(--text2)">
+        <summary style="cursor:pointer;color:var(--gold-l);font-weight:500;list-style:none;outline:none;user-select:none">💡 如何获取 API Key？<span style="color:var(--muted);font-weight:400;font-size:.72rem;margin-left:4px">点击展开</span></summary>
+        <div id="keyHelpBody" style="margin-top:10px;line-height:1.7;color:var(--text2);font-size:.76rem"></div>
+      </details>
+
+      <p class="hint" id="keyPersistHint" style="margin-top:10px">🔒 Key 仅保存在你当前浏览器本地，下次打开自动填充（不会上传给作者，也不会被同事看到）</p>
       <div class="api-row">
         <div class="field">
           <label>图片尺寸</label>
@@ -932,7 +950,13 @@ function saveCurrentApiPrefs(){
   const prefs=loadApiPrefs();
   prefs.lastProvider=pv;
   prefs.keys=prefs.keys||{};
-  prefs.keys[pv]=$("#aiKey").value.trim();
+  if(pv==="jimeng"){
+    const composed=jimengComposeKey();
+    prefs.keys.jimeng=composed;
+    if($("#aiKey")) $("#aiKey").value=composed;
+  }else{
+    prefs.keys[pv]=$("#aiKey").value.trim();
+  }
   prefs.endpoint=$("#aiEndpoint").value.trim();
   prefs.region=$("#aiRegion").value;
   saveApiPrefs(prefs);
@@ -949,7 +973,14 @@ function applyApiPrefs(){
   syncProviderUI();
   const pv=$("#aiProvider").value;
   const k=(prefs.keys&&prefs.keys[pv])||"";
-  if(k) $("#aiKey").value=k;
+  if(pv==="jimeng"){
+    const {ak,sk}=jimengSplitKey(k);
+    if($("#aiAccessKey")) $("#aiAccessKey").value=ak;
+    if($("#aiSecretKey")) $("#aiSecretKey").value=sk;
+    if($("#aiKey")) $("#aiKey").value=k;
+  }else if(k){
+    $("#aiKey").value=k;
+  }
   if(prefs.endpoint) $("#aiEndpoint").value=prefs.endpoint;
   if(prefs.region) $("#aiRegion").value=prefs.region;
   if(k&&k.startsWith("AIzaSy")) savedGeminiKey=k;
@@ -1427,6 +1458,36 @@ const PROVIDER_CONFIG={
   },
 };
 
+const KEY_HELP={
+  "jimeng":`<b>即梦 AI（火山引擎）</b><br>
+    1. 注册并登录 <a href="https://console.volcengine.com/iam/keymanage/" target="_blank" style="color:var(--gold-l)">火山引擎控制台 → 访问控制 → API 访问密钥</a><br>
+    2. 点击「新建密钥」，会得到一对：<br>
+    &nbsp;&nbsp;• <b>AccessKey ID</b> — 32 位左右，以 <code>AKLT</code> 开头，复制粘贴到上方第一个框<br>
+    &nbsp;&nbsp;• <b>Secret AccessKey</b> — 约 50 位的 base64 字符串，结尾通常是 <code>==</code>，粘贴到第二个框<br>
+    3. 还需要开通「视觉智能」服务并选择对应的图像生成模型套餐<br>
+    <span style="color:var(--muted)">⚠ 两段都必须填，且每段必须是完整的字符串。如果你只拿到一段，那是不完整的。</span>`,
+  "gemini":`<b>Google Gemini / Nano Banana</b><br>
+    1. 打开 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold-l)">Google AI Studio → API keys</a><br>
+    2. 点击「Create API key」，会得到一段以 <code>AIzaSy</code> 开头的字符串<br>
+    3. 复制粘贴到上方 API Key 框即可<br>
+    <span style="color:var(--muted)">⚠ 需要能访问 Google 服务，国内网络可能不通。免费额度有限，超过会返回 429。</span>`,
+  "qwen":`<b>通义千问 · 万相（阿里云 DashScope）</b><br>
+    1. 登录 <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" style="color:var(--gold-l)">阿里云 DashScope → API-KEY 管理</a><br>
+    2. 点击「创建新的 API-KEY」，得到一段以 <code>sk-</code> 开头的字符串<br>
+    3. 粘贴到上方 API Key 框<br>
+    <span style="color:var(--muted)">⚠ 大陆和海外区域的 Key 不通用，记得在上面"地域"里选对。</span>`,
+  "openai":`<b>OpenAI（DALL·E 3 / gpt-image-1）</b><br>
+    1. 登录 <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--gold-l)">OpenAI Platform → API keys</a><br>
+    2. 点击「Create new secret key」，得到一段以 <code>sk-</code> 开头的字符串<br>
+    3. 粘贴到上方 API Key 框<br>
+    <span style="color:var(--muted)">⚠ 国内网络需走代理才能访问。账号需要有付费余额。</span>`,
+  "openai-compat":`<b>OpenAI 兼容接口（中转/自建）</b><br>
+    1. 把代理服务方提供给你的 Key 粘到上方<br>
+    2. 在「自定义 API 地址」里填代理域名（通常长这样：<code>https://xxx.com/v1/images/generations</code>）<br>
+    3. 模型选择要和代理服务支持的对齐<br>
+    <span style="color:var(--muted)">⚠ 不同代理服务的请求格式可能略有差异，如果失败请联系服务提供方。</span>`
+};
+
 function syncProviderUI(){
   const pv=$("#aiProvider").value;
   const cfg=PROVIDER_CONFIG[pv];
@@ -1435,8 +1496,29 @@ function syncProviderUI(){
   fillSelect("#aiModel",cfg.models);
   fillSelect("#aiSize",cfg.sizes);
   fillSelect("#aiQuality",cfg.qualities);
+
+  const isJimeng=pv==="jimeng";
+  $("#fieldSingleKey").style.display=isJimeng?"none":"block";
+  $("#fieldJimengKey").style.display=isJimeng?"block":"none";
   $("#aiKey").placeholder=cfg.keyPlaceholder;
   $("#keyHint").textContent=cfg.keyHint;
+
+  $("#keyHelpBody").innerHTML=KEY_HELP[pv]||"";
+}
+
+function jimengComposeKey(){
+  const ak=($("#aiAccessKey")?.value||"").trim();
+  const sk=($("#aiSecretKey")?.value||"").trim();
+  if(!ak&&!sk) return "";
+  return ak+"|"+sk;
+}
+function jimengSplitKey(combined){
+  if(!combined) return {ak:"",sk:""};
+  if(combined.includes("|")){
+    const [ak,sk]=combined.split("|");
+    return {ak:(ak||"").trim(),sk:(sk||"").trim()};
+  }
+  return {ak:combined.trim(),sk:""};
 }
 function fillSelect(sel,opts){
   const el=$(sel);el.innerHTML="";
@@ -1462,24 +1544,84 @@ function checkSaveGeminiKey(){
   if(k.startsWith("AIzaSy"))savedGeminiKey=k;
   if($("#aiProvider").value==="gemini"&&k)savedGeminiKey=k;
 }
+
+if($("#aiAccessKey")){
+  const detectAndSplit=(target)=>{
+    const v=target.value;
+    if(v.includes("|")){
+      const {ak,sk}=jimengSplitKey(v);
+      $("#aiAccessKey").value=ak;
+      $("#aiSecretKey").value=sk;
+      $("#jimengParseHint").style.display="block";
+      setTimeout(()=>{$("#jimengParseHint").style.display="none"},4000);
+    }
+    saveCurrentApiPrefs();
+  };
+  $("#aiAccessKey").oninput=()=>detectAndSplit($("#aiAccessKey"));
+  $("#aiSecretKey").oninput=()=>detectAndSplit($("#aiSecretKey"));
+}
+
 applyApiPrefs();
 
 let keyVisible=false;
 $("#toggleKeyEye").onclick=()=>{keyVisible=!keyVisible;$("#aiKey").type=keyVisible?"text":"password"};
+let secretVisible=false;
+const toggleSecretBtn=$("#toggleSecretEye");
+if(toggleSecretBtn){
+  toggleSecretBtn.onclick=()=>{secretVisible=!secretVisible;$("#aiSecretKey").type=secretVisible?"text":"password"};
+}
+
+function validateKeyFormat(pv){
+  if(pv==="jimeng"){
+    const ak=($("#aiAccessKey")?.value||"").trim();
+    const sk=($("#aiSecretKey")?.value||"").trim();
+    if(!ak&&!sk) return "请填写即梦的 AccessKey ID 和 Secret AccessKey";
+    if(!ak) return "请填写第一个框：AccessKey ID（以 AKLT 开头）";
+    if(!sk) return "请填写第二个框：Secret AccessKey（base64 字符串）";
+    if(ak.length<16) return "AccessKey ID 太短（应该 30+ 位），看起来不是完整的，请检查是否粘贴完整";
+    if(sk.length<30) return "Secret AccessKey 太短（应该 40+ 位），看起来不是完整的，请检查是否粘贴完整";
+    if(ak.toLowerCase()==="accesskey"||sk.toLowerCase()==="secretkey") return "你似乎把占位文字当成 Key 填进去了，请填实际的 Key 字符串";
+    return "";
+  }
+  const k=$("#aiKey").value.trim();
+  if(!k) return "请先填写 API Key";
+  if(pv==="gemini"){
+    if(!k.startsWith("AIzaSy")) return "Gemini Key 通常以 AIzaSy 开头，你这个不像。请到 AI Studio 重新复制";
+    if(k.length<35) return "Gemini Key 太短了（一般 39 位），看起来不完整";
+  }else if(pv==="qwen"){
+    if(!k.startsWith("sk-")) return "通义千问 Key 通常以 sk- 开头，请检查是否复制完整";
+  }else if(pv==="openai"){
+    if(!k.startsWith("sk-")) return "OpenAI Key 通常以 sk- 开头";
+  }
+  return "";
+}
 
 $("#btnTestApi").onclick=async()=>{
-  const key=$("#aiKey").value.trim();
-  if(!key){toast("请先填写 API Key");return}
-  saveCurrentApiPrefs();
-  const label=$("#apiStatusLabel");
-  label.innerHTML='<span class="status-dot loading"></span>测试中…';
   const pv=$("#aiProvider").value;
+  const fmtErr=validateKeyFormat(pv);
+  const label=$("#apiStatusLabel");
+  if(fmtErr){
+    label.innerHTML='<span class="status-dot err"></span>格式错误: '+fmtErr;
+    toast(fmtErr);return;
+  }
+  if(pv==="jimeng"){
+    $("#aiKey").value=jimengComposeKey();
+  }
+  const key=$("#aiKey").value.trim();
+  saveCurrentApiPrefs();
+  label.innerHTML='<span class="status-dot loading"></span>测试中…';
   try{
     let r;
     if(pv==="jimeng"){
       const res=await jimengCall(key,"一枚金色硬币",512,512);
-      if(res.code===10000){label.innerHTML='<span class="status-dot ok"></span>连接成功（即梦）';toast("即梦 API 连接正常");return}
-      else{label.innerHTML='<span class="status-dot err"></span>code='+res.code+': '+res.message;toast("即梦连接异常");return}
+      if(res.code===10000){label.innerHTML='<span class="status-dot ok"></span>✓ 连接成功（即梦）';toast("即梦 API 连接正常");return}
+      else{
+        let hint=res.message||"";
+        if(res.code===50412||/auth|sign|signature/i.test(hint)) hint="Key 无效或签名错误。请确认 AccessKey/SecretKey 都从同一对密钥复制，且没多空格或换行";
+        else if(/quota|limit|额度|配额/i.test(hint)) hint="Key 有效，但额度已用完。请到火山引擎控制台开通/续费图像生成服务";
+        else if(/forbidden|未开通|not.*open|not.*subscribed/i.test(hint)) hint="账号还没开通图像生成服务，请到火山引擎控制台「视觉智能」里开通对应套餐";
+        label.innerHTML='<span class="status-dot err"></span>code='+res.code+': '+hint;toast("即梦连接失败");return;
+      }
     }else if(pv==="gemini"){
       r=await fetch("https://generativelanguage.googleapis.com/v1beta/models?key="+encodeURIComponent(key));
     }else if(pv==="qwen"){
@@ -1489,9 +1631,22 @@ $("#btnTestApi").onclick=async()=>{
       const ep=pv==="openai-compat"&&$("#aiEndpoint").value.trim()?$("#aiEndpoint").value.trim().replace(/\/images\/generations.*/,""):("https://api.openai.com/v1");
       r=await fetch(ep+"/models",{headers:{"Authorization":"Bearer "+key}});
     }
-    if(r.ok){label.innerHTML='<span class="status-dot ok"></span>连接成功';toast("API 连接正常")}
-    else{const j=await r.json().catch(()=>({}));const msg=j.error?.message||j.message||j.output?.message||("HTTP "+r.status);label.innerHTML='<span class="status-dot err"></span>'+msg;toast("连接异常: "+msg)}
-  }catch(e){label.innerHTML='<span class="status-dot err"></span>网络错误: '+e.message;toast("网络错误")}
+    if(r.ok){label.innerHTML='<span class="status-dot ok"></span>✓ 连接成功';toast("API 连接正常")}
+    else{
+      const j=await r.json().catch(()=>({}));
+      let msg=j.error?.message||j.message||j.output?.message||("HTTP "+r.status);
+      if(r.status===401||r.status===403||/invalid.*key|unauth/i.test(msg)) msg="Key 无效或已失效，请到对应平台重新创建一个";
+      else if(r.status===429) msg="额度用完或调用太频繁。可以等几分钟再试，或开通付费额度";
+      label.innerHTML='<span class="status-dot err"></span>'+msg;toast("连接失败: "+msg);
+    }
+  }catch(e){
+    let msg=e.message||"未知";
+    if(/Failed to fetch|NetworkError|TypeError/i.test(msg)){
+      if(pv==="gemini"||pv==="openai") msg="无法访问海外服务，请检查网络（一般需要科学上网）";
+      else msg="网络错误，可能是防火墙拦截或服务暂时不可用";
+    }
+    label.innerHTML='<span class="status-dot err"></span>'+msg;toast(msg);
+  }
 };
 
 /* ══════════════════════ PROMPT BUILDER ══════════════════════ */
