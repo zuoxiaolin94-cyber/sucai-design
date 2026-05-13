@@ -35,7 +35,6 @@ header.top{display:flex;align-items:center;justify-content:space-between;margin-
 .brand-text h1{font-size:1.18rem;font-weight:600;letter-spacing:.4px;color:var(--cream)}
 .brand-text p{font-size:.75rem;color:var(--text-mute);margin-top:2px}
 .user-bar{display:flex;align-items:center;gap:12px;font-size:.8rem;color:var(--text-mute)}
-.user-bar .email{color:var(--cream);font-weight:500}
 .btn{
   padding:9px 16px;border-radius:10px;border:1px solid var(--border-line);
   background:var(--base-2);color:var(--cream);font-family:inherit;font-size:.8125rem;
@@ -50,41 +49,17 @@ header.top{display:flex;align-items:center;justify-content:space-between;margin-
 .btn-primary:hover{box-shadow:0 6px 20px rgba(216,171,72,.3);transform:translateY(-1px)}
 .btn-sm{padding:6px 12px;font-size:.75rem;border-radius:8px}
 
-/* Login */
-.login-wrap{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
-}
-.login-card{
-  background:var(--base-2);border:1px solid var(--border-line);border-radius:20px;
-  padding:40px 36px;width:100%;max-width:400px;
-  box-shadow:0 16px 56px rgba(0,0,0,.5);
-  text-align:center;
-}
-.login-card .logo{
-  width:60px;height:60px;border-radius:16px;margin:0 auto 18px;
-  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
-  display:flex;align-items:center;justify-content:center;
-  color:var(--base-0);font-weight:700;font-size:1.4rem;
-  box-shadow:0 8px 28px rgba(216,171,72,.3);
-}
-.login-card h2{font-size:1.15rem;color:var(--gold-soft);margin-bottom:6px;font-weight:600}
-.login-card p.sub{color:var(--text-mute);font-size:.8125rem;margin-bottom:24px}
-.field{margin-bottom:14px;text-align:left}
-.field label{display:block;font-size:.75rem;color:var(--text-mute);margin-bottom:6px;letter-spacing:.4px}
-.field input{
-  width:100%;padding:12px 14px;border:1px solid var(--border-line);border-radius:10px;
-  background:var(--base-3);color:var(--cream);font-family:inherit;font-size:.875rem;
-  outline:none;transition:.25s;
-}
-.field input:focus{border-color:rgba(216,171,72,.5);box-shadow:0 0 0 3px rgba(216,171,72,.1)}
-.err-msg{color:var(--red);font-size:.75rem;margin-top:10px;min-height:18px;text-align:left}
+/* Gate */
+.gate-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-card{background:var(--base-2);border:1px solid var(--border-line);border-radius:20px;padding:40px 36px;width:100%;max-width:420px;box-shadow:0 16px 56px rgba(0,0,0,.5);text-align:center}
+.gate-card .logo{width:60px;height:60px;border-radius:16px;margin:0 auto 18px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:var(--base-0);font-weight:700;font-size:1.4rem;box-shadow:0 8px 28px rgba(216,171,72,.3)}
+.gate-card h2{font-size:1.15rem;color:var(--gold-soft);margin-bottom:6px;font-weight:600}
+.gate-card p{color:var(--text-mute);font-size:.825rem;margin-bottom:18px;line-height:1.6}
+.gate-card .err{color:var(--red);font-size:.8rem;margin-top:14px}
 
 /* Stats */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-.stat-card{
-  background:var(--base-2);border:1px solid var(--border-line);border-radius:14px;
-  padding:18px 20px;transition:.25s;
-}
+.stat-card{background:var(--base-2);border:1px solid var(--border-line);border-radius:14px;padding:18px 20px;transition:.25s}
 .stat-card:hover{border-color:rgba(216,171,72,.25);transform:translateY(-2px)}
 .stat-card .label{font-size:.7rem;color:var(--text-mute);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
 .stat-card .value{font-size:1.85rem;font-weight:600;color:var(--gold-soft);line-height:1}
@@ -92,44 +67,25 @@ header.top{display:flex;align-items:center;justify-content:space-between;margin-
 
 /* Tabs */
 .tabs{display:flex;gap:4px;background:var(--base-2);padding:4px;border-radius:12px;border:1px solid var(--border-line);margin-bottom:20px;width:fit-content}
-.tab{
-  padding:9px 18px;border-radius:9px;font-size:.8125rem;color:var(--text-mute);
-  cursor:pointer;font-weight:500;transition:.2s;border:none;background:transparent;font-family:inherit;
-}
+.tab{padding:9px 18px;border-radius:9px;font-size:.8125rem;color:var(--text-mute);cursor:pointer;font-weight:500;transition:.2s;border:none;background:transparent;font-family:inherit}
 .tab.active{background:var(--base-3);color:var(--gold-soft)}
 .tab:hover:not(.active){color:var(--cream)}
 
-/* Filter bar */
-.filters{
-  display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;
-  padding:14px 16px;background:var(--base-2);border:1px solid var(--border-line);border-radius:12px;
-}
-.filters input,.filters select{
-  padding:8px 12px;border:1px solid var(--border-line);border-radius:8px;
-  background:var(--base-3);color:var(--cream);font-family:inherit;font-size:.8125rem;
-  outline:none;min-width:140px;
-}
+/* Filters */
+.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:14px 16px;background:var(--base-2);border:1px solid var(--border-line);border-radius:12px}
+.filters input,.filters select{padding:8px 12px;border:1px solid var(--border-line);border-radius:8px;background:var(--base-3);color:var(--cream);font-family:inherit;font-size:.8125rem;outline:none;min-width:140px}
 .filters label{font-size:.7rem;color:var(--text-mute);letter-spacing:.4px}
 .filters .spacer{flex:1}
 
 /* Table */
-.table-wrap{
-  background:var(--base-2);border:1px solid var(--border-line);border-radius:14px;
-  overflow:hidden;
-}
+.table-wrap{background:var(--base-2);border:1px solid var(--border-line);border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse;font-size:.8125rem}
 thead{background:var(--base-3)}
-th{
-  text-align:left;padding:13px 16px;font-size:.7rem;color:var(--text-mute);
-  letter-spacing:.6px;text-transform:uppercase;font-weight:500;border-bottom:1px solid var(--border-line);
-}
+th{text-align:left;padding:13px 16px;font-size:.7rem;color:var(--text-mute);letter-spacing:.6px;text-transform:uppercase;font-weight:500;border-bottom:1px solid var(--border-line)}
 td{padding:12px 16px;border-bottom:1px solid var(--border-soft);color:var(--cream)}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:rgba(216,171,72,.04)}
-td .pill{
-  display:inline-block;padding:3px 9px;border-radius:6px;font-size:.7rem;
-  background:var(--base-3);color:var(--text-mute);
-}
+td .pill{display:inline-block;padding:3px 9px;border-radius:6px;font-size:.7rem;background:var(--base-3);color:var(--text-mute)}
 td .pill.success{background:rgba(127,216,155,.12);color:var(--green)}
 td .pill.failed{background:rgba(255,123,123,.12);color:var(--red)}
 td .pill.gold{background:rgba(216,171,72,.12);color:var(--gold-soft)}
@@ -145,9 +101,8 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
 .pagination button:disabled{opacity:.4;cursor:not-allowed}
 
 .section{display:none}
-.section.active{display:block}
-
-.tag-chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.7rem;margin-right:4px;background:var(--base-3);color:var(--text-mute)}
+.section.active{display:block;animation:fadeIn .25s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 @media (max-width:880px){
   .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -155,29 +110,17 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
   th,td{padding:10px 12px;font-size:.75rem}
   .prompt-cell{max-width:160px}
 }
-
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.section.active{animation:fadeIn .25s ease-out}
 </style>
 </head>
 <body>
 
-<!-- Login -->
-<div id="loginView" class="login-wrap">
-  <div class="login-card">
-    <div class="logo">SD</div>
-    <h2>素材生成 · 后台</h2>
-    <p class="sub">仅限管理员登录</p>
-    <div class="field">
-      <label>邮箱</label>
-      <input id="loginEmail" type="email" placeholder="admin@example.com" autocomplete="username"/>
-    </div>
-    <div class="field">
-      <label>密码</label>
-      <input id="loginPwd" type="password" placeholder="••••••••" autocomplete="current-password"/>
-    </div>
-    <button class="btn btn-primary" id="btnLogin" style="width:100%;margin-top:6px">登录</button>
-    <div class="err-msg" id="loginErr"></div>
+<!-- Gate (no token / wrong token) -->
+<div id="gateView" class="gate-wrap" style="display:none">
+  <div class="gate-card">
+    <div class="logo">🔒</div>
+    <h2>需要访问令牌</h2>
+    <p>请使用完整的后台链接访问。<br/>如果你是管理员，请检查链接末尾的 <code style="color:var(--gold-soft);background:var(--base-3);padding:2px 6px;border-radius:4px">#k=...</code> 部分是否完整。</p>
+    <div class="err" id="gateErr"></div>
   </div>
 </div>
 
@@ -192,16 +135,15 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
       </div>
     </div>
     <div class="user-bar">
-      <span id="adminEmail" class="email">—</span>
+      <span style="color:var(--gold-soft)">● 已授权</span>
       <button class="btn btn-sm" id="btnRefresh">刷新</button>
-      <button class="btn btn-sm" id="btnLogout">退出</button>
     </div>
   </header>
 
   <div class="stats-grid">
-    <div class="stat-card"><div class="label">总用户数</div><div class="value" id="statUsers">—</div><div class="delta" id="statUsersDelta"></div></div>
+    <div class="stat-card"><div class="label">总用户数</div><div class="value" id="statUsers">—</div><div class="delta">累计昵称数</div></div>
     <div class="stat-card"><div class="label">总操作数</div><div class="value" id="statEvents">—</div><div class="delta">所有事件累计</div></div>
-    <div class="stat-card"><div class="label">今日操作</div><div class="value" id="statToday">—</div><div class="delta" id="statTodayDelta"></div></div>
+    <div class="stat-card"><div class="label">今日操作</div><div class="value" id="statToday">—</div><div class="delta" id="statTodayDelta">—</div></div>
     <div class="stat-card"><div class="label">本周生成图片</div><div class="value" id="statGenWeek">—</div><div class="delta">最近 7 天 · success</div></div>
   </div>
 
@@ -247,9 +189,7 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
             <th>Prompt / 备注</th>
           </tr>
         </thead>
-        <tbody id="eventsBody">
-          <tr><td colspan="6" class="loading">加载中…</td></tr>
-        </tbody>
+        <tbody id="eventsBody"><tr><td colspan="6" class="loading">加载中…</td></tr></tbody>
       </table>
     </div>
     <div class="pagination">
@@ -279,9 +219,7 @@ td .pill.blue{background:rgba(123,176,255,.12);color:var(--blue)}
             <th>成功生成</th>
           </tr>
         </thead>
-        <tbody id="usersBody">
-          <tr><td colspan="6" class="loading">加载中…</td></tr>
-        </tbody>
+        <tbody id="usersBody"><tr><td colspan="6" class="loading">加载中…</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -309,56 +247,57 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL="https://pznlbrtormfulrhmukwv.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6bmxicnRvcm1mdWxyaG11a3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NTg5NjQsImV4cCI6MjA5NDIzNDk2NH0.w8nUGu9AfAewGM3c8UDUCEIkKN5EtclZa1R1rNTNaIw";
 
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth:{persistSession:true,autoRefreshToken:true}
-});
+/* 令牌的 SHA-256 哈希（原文不在源码里，无法被反推） */
+const TOKEN_HASH = "51d0e91a44ec00da97e24441609dc663a7c9bcc61c7d94601c15256e5ae97773";
+const TOKEN_STORAGE_KEY = "sd_admin_token";
 
 const $ = s=>document.querySelector(s);
+
+/* ============ Gate ============ */
+async function sha256Hex(text){
+  const buf = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+async function checkGate(){
+  // 1) URL hash 里有令牌
+  let token = "";
+  const hash = location.hash.replace(/^#/,"");
+  const m = hash.match(/k=([^&]+)/);
+  if(m) token = decodeURIComponent(m[1]);
+  // 2) 否则用 localStorage 里上次的
+  if(!token) token = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+
+  if(!token){ showGate(); return false; }
+  const h = await sha256Hex(token);
+  if(h !== TOKEN_HASH){ showGate("令牌错误"); return false; }
+  localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  // 清掉 URL 上的 hash，避免被路人围观
+  history.replaceState(null,"",location.pathname);
+  showMain();
+  return true;
+}
+function showGate(err){
+  $("#gateView").style.display="flex";
+  $("#mainView").style.display="none";
+  if(err) $("#gateErr").textContent = err;
+}
+function showMain(){
+  $("#gateView").style.display="none";
+  $("#mainView").style.display="block";
+  loadAll();
+}
+
+/* ============ Supabase ============ */
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const PAGE_SIZE = 50;
 let evPage = 0;
 let evFilters = {};
 let allUsers = [];
 
-/* ================= Auth ================= */
-async function checkAuth(){
-  const { data:{ session } } = await sb.auth.getSession();
-  if(session){
-    showMain(session.user);
-  }else{
-    $("#loginView").style.display="flex";
-    $("#mainView").style.display="none";
-  }
-}
-
-$("#btnLogin").onclick = async ()=>{
-  const email = $("#loginEmail").value.trim();
-  const pwd = $("#loginPwd").value;
-  $("#loginErr").textContent="";
-  if(!email||!pwd){$("#loginErr").textContent="请输入邮箱和密码";return}
-  $("#btnLogin").disabled=true;$("#btnLogin").textContent="登录中…";
-  const { data, error } = await sb.auth.signInWithPassword({email,password:pwd});
-  $("#btnLogin").disabled=false;$("#btnLogin").textContent="登录";
-  if(error){$("#loginErr").textContent=error.message||"登录失败";return}
-  showMain(data.user);
-};
-
-$("#loginPwd").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btnLogin").click()});
-
-$("#btnLogout").onclick = async ()=>{
-  await sb.auth.signOut();
-  location.reload();
-};
-
-function showMain(user){
-  $("#loginView").style.display="none";
-  $("#mainView").style.display="block";
-  $("#adminEmail").textContent = user.email || "管理员";
-  loadAll();
-}
-
 $("#btnRefresh").onclick = ()=>loadAll();
 
-/* ================= Tabs ================= */
 document.querySelectorAll(".tab").forEach(t=>{
   t.onclick = ()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
@@ -368,7 +307,6 @@ document.querySelectorAll(".tab").forEach(t=>{
   };
 });
 
-/* ================= Load ================= */
 async function loadAll(){
   await Promise.all([loadStats(), loadEvents(), loadUsers(), loadOverview()]);
 }
@@ -390,7 +328,6 @@ async function loadStats(){
   $("#statToday").textContent = tev.count ?? 0;
   $("#statGenWeek").textContent = gen.count ?? 0;
 
-  // delta: today vs yesterday
   const yest = new Date(today.getTime()-24*3600*1000);
   const yev = await sb.from("tracker_events").select("*",{count:"exact",head:true})
     .gte("created_at", yest.toISOString()).lt("created_at", today.toISOString());
@@ -408,11 +345,9 @@ async function loadEvents(){
   if(evFilters.prompt) q = q.ilike("prompt_preview", `%${evFilters.prompt}%`);
   const { data, error, count } = await q;
   const tbody = $("#eventsBody");
-  if(error){tbody.innerHTML=`<tr><td colspan="6" class="empty">加载失败：${error.message}</td></tr>`;return}
+  if(error){tbody.innerHTML=`<tr><td colspan="6" class="empty">加载失败：${error.message}<br/><span style="font-size:.75rem">提示：请先在 Supabase 跑允许 anon SELECT 的 SQL</span></td></tr>`;return}
   if(!data||!data.length){tbody.innerHTML=`<tr><td colspan="6" class="empty">暂无数据</td></tr>`;}
-  else {
-    tbody.innerHTML = data.map(rowToEventTr).join("");
-  }
+  else tbody.innerHTML = data.map(rowToEventTr).join("");
   const total = count||0;
   const totalPages = Math.max(1, Math.ceil(total/PAGE_SIZE));
   $("#evPageInfo").textContent = `第 ${evPage+1} / ${totalPages} 页 · 共 ${total} 条`;
@@ -475,26 +410,17 @@ $("#btnExportCsv").onclick = async ()=>{
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 
-/* ================= Users ================= */
 async function loadUsers(){
   const { data:users, error } = await sb.from("tracker_users").select("*").order("last_seen",{ascending:false}).limit(500);
   if(error){$("#usersBody").innerHTML=`<tr><td colspan="6" class="empty">加载失败：${error.message}</td></tr>`;return}
-
-  // get event counts per device
-  const { data:counts } = await sb.from("tracker_events")
-    .select("device_id,event_type,status").limit(5000);
+  const { data:counts } = await sb.from("tracker_events").select("device_id,event_type,status").limit(5000);
   const stats = {};
   (counts||[]).forEach(c=>{
     if(!stats[c.device_id]) stats[c.device_id]={total:0,gen:0};
     stats[c.device_id].total++;
     if(c.event_type==="generate"&&c.status==="success") stats[c.device_id].gen++;
   });
-
-  allUsers = (users||[]).map(u=>({
-    ...u,
-    total: stats[u.device_id]?.total||0,
-    gen: stats[u.device_id]?.gen||0
-  }));
+  allUsers = (users||[]).map(u=>({...u, total: stats[u.device_id]?.total||0, gen: stats[u.device_id]?.gen||0}));
   renderUsers();
 }
 
@@ -516,7 +442,6 @@ function renderUsers(){
     </tr>`;
   }).join("");
 }
-
 $("#userSearch").oninput = renderUsers;
 
 function fmtDate(s){
@@ -524,7 +449,6 @@ function fmtDate(s){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 }
 
-/* ================= Overview ================= */
 async function loadOverview(){
   const { data } = await sb.from("tracker_events").select("provider,status,nickname,device_id,created_at")
     .eq("event_type","generate").limit(5000);
@@ -558,8 +482,7 @@ async function loadOverview(){
   }).join("");
 }
 
-/* ================= Init ================= */
-checkAuth();
+checkGate();
 </script>
 </body>
 </html>
