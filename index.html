@@ -1631,7 +1631,7 @@ $("#btnTestApi").onclick=async()=>{
   try{
     let r;
     if(pv==="jimeng"){
-      const res=await jimengCall(key,"一枚金色硬币",512,512);
+      const res=await jimengCall(key,"一枚金色硬币",1024,1024);
       if(res.code===10000){
         label.innerHTML='<span class="status-dot ok"></span>✓ 连接成功（即梦）';
         showApiDetail("ok","<b>✓ Key 有效，服务可用</b><br>当前模型：<b>"+($("#aiModel").options[$("#aiModel").selectedIndex]?.text||"")+"</b>，可以开始生成图片了。");
@@ -1659,6 +1659,14 @@ $("#btnTestApi").onclick=async()=>{
         else if(/quota|limit|额度|配额/i.test(hint)){
           hint="Key 有效，但额度用完";
           detail="<b>💸 额度已用完</b><br>请到火山引擎控制台开通付费额度或等下月免费额度刷新。";
+        }
+        else if(res.code===50501||/height or width invalid|size.*invalid|invalid.*size/i.test(hint)){
+          hint="图片尺寸不被该模型支持";
+          detail="<b>📐 当前选的「图片尺寸」该模型不支持。</b><br><br>请在上方「图片尺寸」下拉里换一个，<b>"+curModel+" 推荐用 <code>1024x1024</code> 或 <code>1280x1280</code></b>。<br>如果是即梦 4.0，建议用 <code>1024x1024</code> 或 <code>1536x1024</code> 这种正方/16:10/16:9 标准尺寸。";
+        }
+        else if(/run comfyui pipeline|algorithm|算法/i.test(hint)){
+          hint="模型内部错误";
+          detail="<b>⚙ 模型内部异常</b><br>原始报错：<code>"+(res.message||"").substring(0,200)+"</code><br><br>常见原因：<br>1. 图片尺寸该模型不支持 → 换 <code>1024x1024</code><br>2. Prompt 太短/太长/含敏感词 → 改一下 Prompt<br>3. 模型暂时不稳定 → 几分钟后再试";
         }
         else{
           detail="<b>⚠ 接口返回错误：</b> "+(res.message||"")+"<br>错误码：<code>"+res.code+"</code><br><br>如果不清楚原因，可以发这个错误码给作者排查。";
