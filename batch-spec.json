@@ -1,0 +1,42 @@
+{
+  "_comment": "理财投资二屏卡 — 3D 软陶/玻璃拟态风格批量变量。配合 batch-prompt.html 导出提示词。",
+  "styleTokens": {
+    "palette": {
+      "orangePrimary": "#FF9D28",
+      "orangeDeep": "#FF8C42",
+      "purpleAccent": "#907DA1",
+      "goldMetal": "#F8D081",
+      "navyCard": "#1a2744",
+      "blueUi": "#4D70FF",
+      "greenAccent": "#00B16A",
+      "pinkAccent": "#FBC0D1",
+      "background": "#FFFFFF"
+    },
+    "lighting": "soft studio light from top-left, gentle ambient occlusion, no hard shadows",
+    "perspective": "slight 3/4 isometric, floating composition, white or transparent background",
+    "materials": "matte clay plastic for props, satin gold for coins, frosted glass for arrows/cards, optional glossy metallic accents",
+    "composition": "one hero 3D object + floating UI badge or gradient card + 2-4 pill confetti accents",
+    "typographyHint": "bold white sans-serif on gradient cards; orange-brown or dark on light labels"
+  },
+  "promptTemplateZh": "高清 3D 插画，理财金融主题，软陶/粘土质感（claymorphism），柔和顶光左上，浅景深，纯白背景。主色：暖橙 {{orange}}、金属金 {{gold}}、点缀 {{accent}}。画面中心：{{hero}}。辅助：{{support}}。{{extra}}。无文字水印，8k，产品级渲染。",
+  "promptTemplateEn": "High-end 3D fintech illustration, claymorphism soft plastic, satin gold metal, frosted glass UI, top-left soft studio light, white background, isometric 3/4 view, floating composition. Hero: {{hero}}. Support: {{support}}. Accent colors: orange {{orange}}, gold {{gold}}, {{accent}}. {{extra}}. No text, no watermark, 8k render.",
+  "heroPresets": [
+    { "id": "money_bag_coins", "label": "钱袋+落币", "hero": "麻布质感钱袋开口朝上，多枚厚金币正在落入袋中", "support": "半透明磨砂玻璃箭头一左一右暗示资金流；右下角可放小红包" },
+    { "id": "calendar_coin", "label": "日历+金币+曲线", "hero": "淡紫色支架台历，橙色页眉，格点日期若干枚高亮为金橙色", "support": "左上悬浮一枚厚金币带¥符号；背后浅橙色上升曲线与半透明填充" },
+    { "id": "hospital_quota", "label": "医院+额度气泡", "hero": "圆角浅灰医院小楼，蓝窗与红十字顶标", "support": "旁侧金币堆与路牌；右侧悬浮蓝渐变圆角气泡写额度感（画面可无字由后期合成）" },
+    { "id": "glass_card_quota", "label": "玻璃卡+应急", "hero": "对角线蓝紫渐变磨砂玻璃横卡，层叠背板增加景深", "support": "左缘厚金币¥，右下金属盾牌；周围红绿蓝小胶囊装饰" },
+    { "id": "wallet_hand", "label": "手托钱包", "hero": "张开手掌托举，上方悬浮天蓝圆角钱包与白线缝、金扣", "support": "多枚¥金币与橙粉渐变百分比券形标签" },
+    { "id": "gift_coins", "label": "礼盒取币", "hero": "黄色礼盒开盖，手正拈起一枚厚金币", "support": "盒内金币堆；右下白底圆角券带%符号；周侧绿橙蓝胶囊" },
+    { "id": "orange_promo_card", "label": "橙卡提额降息", "hero": "大圆角横卡，橙到奶油黄渐变，背后巨大低透明度%符号", "support": "左上厚金币；右下双层蛋糕与数字蜡烛；周侧彩色胶囊" },
+    { "id": "bar_chart_gold", "label": "金柱增长", "hero": "五根递增金柱条形图，粗金折线箭头向上", "support": "最高柱旁靠一枚¥金币；左侧小圆角浮卡带黄色豆形图标；背景淡桃色波浪块" },
+    { "id": "cards_coins", "label": "双卡+金币", "hero": "叠放圆角银行卡，浅金与深蓝，芯片与双圆标", "support": "前景大¥金币与远景小币；浅奶油底托板与粉绿紫胶囊" },
+    { "id": "photo_chart", "label": "人像+折线（需换主体）", "hero": "（指定人群）半身抠图微笑，右侧蓝色下行或上行平滑折线", "support": "端点空心圆节点、虚线竖格、底部金币堆与渐变气泡数据感" }
+  ],
+  "batchRows": [
+    { "id": "v1", "heroPresetId": "glass_card_quota", "accent": "天蓝+薰衣草紫", "extra": "整体偏冷色玻璃质感，强调安全感" },
+    { "id": "v2", "heroPresetId": "money_bag_coins", "accent": "金橙", "extra": "强调低息周转、资金灵活" },
+    { "id": "v3", "heroPresetId": "orange_promo_card", "accent": "橙黄", "extra": "促销感强，粒子与蛋糕略喜庆" },
+    { "id": "v4", "heroPresetId": "bar_chart_gold", "accent": "香槟金+奶油底", "extra": "强调收益增长趋势" },
+    { "id": "v5", "heroPresetId": "wallet_hand", "accent": "品牌蓝+金", "extra": "强调用户福利与优惠券" }
+  ]
+}

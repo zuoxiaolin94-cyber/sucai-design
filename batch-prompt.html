@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>理财投资二屏卡 · 批量提示词</title>
+  <style>
+    :root {
+      --bg: #f4f3f8;
+      --card: #fff;
+      --orange: #ff9d28;
+      --text: #1a1a1a;
+      --muted: #666;
+      --border: #e8e6ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 8px; }
+    .sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 24px; }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    h2 { font-size: 0.9375rem; margin: 0 0 12px; font-weight: 600; }
+    label { display: block; font-size: 0.8125rem; color: var(--muted); margin-bottom: 4px; }
+    select, textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+    textarea { min-height: 140px; resize: vertical; }
+    .row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+    .tokens {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: #faf9fc;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .tokens code { color: #5c4a7a; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+    .primary { background: var(--orange); color: #fff; font-weight: 500; }
+    .secondary { background: #fff; border: 1px solid var(--border); color: var(--text); }
+    .ok { color: #0a7; font-size: 0.8125rem; min-height: 1.25rem; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+    th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #faf9fc; }
+    .err { color: #c33; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <h1>理财投资二屏卡 · 风格化批量提示词</h1>
+  <p class="sub">与 Figma「理财投资二屏卡」一致的 3D 软陶 / 玻璃拟态金融插画。若需从 Figma 同步结构，请在 Figma 中选中对应 Frame 后再用 MCP 拉取。</p>
+
+  <section>
+    <h2>风格 Token（与 batch-spec.json 同步）</h2>
+    <div class="tokens" id="tokenPreview">加载中…</div>
+  </section>
+
+  <section>
+    <h2>单条生成</h2>
+    <div class="row">
+      <div>
+        <label for="preset">主视觉预设</label>
+        <select id="preset"></select>
+      </div>
+      <div>
+        <label for="lang">提示词语种</label>
+        <select id="lang">
+          <option value="zh">中文（推荐国内模型）</option>
+          <option value="en">English（MJ / SD XL）</option>
+        </select>
+      </div>
+    </div>
+    <label for="accent">点缀色描述</label>
+    <input type="text" id="accent" placeholder="例如：粉绿紫胶囊、天蓝薰衣草" />
+    <label for="extra">额外说明（卖点/情绪）</label>
+    <input type="text" id="extra" placeholder="例如：强调安全、低息、增长" />
+    <div class="actions">
+      <button type="button" class="primary" id="btnFill">填入模板</button>
+      <button type="button" class="secondary" id="btnCopy">复制提示词</button>
+    </div>
+    <label for="out">提示词</label>
+    <textarea id="out" readonly></textarea>
+    <div class="ok" id="msg"></div>
+  </section>
+
+  <section>
+    <h2>批量表（batchRows）</h2>
+    <p class="sub" style="margin:0 0 12px;">以下为 spec 中预置行，可导出为 CSV 交给批量文生图脚本或运营填表。</p>
+    <div id="batchErr" class="err"></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>预设</th>
+            <th>中文提示词摘要</th>
+          </tr>
+        </thead>
+        <tbody id="batchBody"></tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="btnCsv">下载 CSV（UTF-8）</button>
+    </div>
+  </section>
+
+  <script>
+    const specUrl = "./batch-spec.json";
+
+    function escapeCsv(s) {
+      const t = String(s).replace(/"/g, '""');
+      return '"' + t + '"';
+    }
+
+    function fillTemplate(spec, lang, hero, support, accent, extra) {
+      const o = spec.styleTokens.palette.orangePrimary;
+      const g = spec.styleTokens.palette.goldMetal;
+      let tpl = lang === "zh" ? spec.promptTemplateZh : spec.promptTemplateEn;
+      return tpl
+        .replace(/\{\{orange\}\}/g, o)
+        .replace(/\{\{gold\}\}/g, g)
+        .replace(/\{\{accent\}\}/g, accent || "粉绿紫")
+        .replace(/\{\{hero\}\}/g, hero)
+        .replace(/\{\{support\}\}/g, support)
+        .replace(/\{\{extra\}\}/g, extra || "");
+    }
+
+    async function main() {
+      let spec;
+      try {
+        const r = await fetch(specUrl);
+        spec = await r.json();
+      } catch (e) {
+        document.getElementById("batchErr").textContent =
+          "无法加载 batch-spec.json，请用本地静态服务打开本页（例如：python3 -m http.server），或直接双击若浏览器允许 file:// 读 JSON。";
+        return;
+      }
+
+      const presetSel = document.getElementById("preset");
+      spec.heroPresets.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.label + " — " + p.id;
+        presetSel.appendChild(opt);
+      });
+
+      const pal = spec.styleTokens.palette;
+      document.getElementById("tokenPreview").innerHTML =
+        "主橙 <code>" + pal.orangePrimary + "</code> · 金 <code>" + pal.goldMetal + "</code> · 紫 <code>" +
+        pal.purpleAccent + "</code> · 深蓝卡 <code>" + pal.navyCard + "</code><br/>" +
+        "光照：" + spec.styleTokens.lighting + "<br/>透视：" + spec.styleTokens.perspective;
+
+      function currentPrompt() {
+        const pid = presetSel.value;
+        const p = spec.heroPresets.find((x) => x.id === pid);
+        const lang = document.getElementById("lang").value;
+        const accent = document.getElementById("accent").value.trim();
+        const extra = document.getElementById("extra").value.trim();
+        return fillTemplate(spec, lang, p.hero, p.support, accent, extra);
+      }
+
+      document.getElementById("btnFill").onclick = () => {
+        document.getElementById("out").value = currentPrompt();
+        document.getElementById("msg").textContent = "";
+      };
+
+      document.getElementById("btnCopy").onclick = async () => {
+        const t = document.getElementById("out").value || currentPrompt();
+        try {
+          await navigator.clipboard.writeText(t);
+          document.getElementById("msg").textContent = "已复制到剪贴板";
+        } catch {
+          document.getElementById("msg").textContent = "复制失败，请手动全选复制";
+        }
+      };
+
+      const tbody = document.getElementById("batchBody");
+      const rows = [];
+      spec.batchRows.forEach((row) => {
+        const preset = spec.heroPresets.find((h) => h.id === row.heroPresetId);
+        const zh = preset
+          ? fillTemplate(spec, "zh", preset.hero, preset.support, row.accent, row.extra)
+          : "(预设未找到)";
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" +
+          row.id +
+          "</td><td>" +
+          (preset ? preset.label : row.heroPresetId) +
+          "</td><td style='max-width:420px;white-space:pre-wrap;'>" +
+          zh.replace(/</g, "&lt;") +
+          "</td>";
+        tbody.appendChild(tr);
+        rows.push({ id: row.id, heroPresetId: row.heroPresetId, prompt_zh: zh });
+      });
+
+      document.getElementById("btnCsv").onclick = () => {
+        const header = "id,heroPresetId,prompt_zh\n";
+        const body = rows
+          .map((r) => escapeCsv(r.id) + "," + escapeCsv(r.heroPresetId) + "," + escapeCsv(r.prompt_zh))
+          .join("\n");
+        const blob = new Blob(["\ufeff" + header + body], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "figma-second-screen-prompts.csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      };
+
+      document.getElementById("btnFill").click();
+    }
+
+    main();
+  </script>
+</body>
+</html>
