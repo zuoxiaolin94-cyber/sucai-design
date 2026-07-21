@@ -59,6 +59,141 @@ header h1{
 }
 header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;font-weight:300}
 
+.profile-corner{
+  position:fixed;top:14px;left:18px;z-index:1000;
+  display:flex;align-items:center;gap:8px;
+}
+.profile-back,.profile-summary{
+  min-height:38px;border:1px solid var(--border);background:rgba(30,30,40,.88);
+  color:var(--text);box-shadow:0 6px 22px rgba(0,0,0,.16);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.profile-back{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 11px 7px 9px;border-radius:999px;
+  font:500 .75rem/1 "Outfit","PingFang SC",sans-serif;cursor:pointer;
+  transition:transform .22s,border-color .22s,background-color .22s,box-shadow .22s;
+}
+.profile-back:hover{transform:translateY(-1px);border-color:var(--border-active);box-shadow:0 8px 26px rgba(0,0,0,.2)}
+.profile-back:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.profile-back svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.profile-summary{
+  display:flex;align-items:center;gap:7px;min-width:0;padding:6px 11px 6px 8px;border-radius:999px;
+  cursor:default;
+}
+.profile-summary__avatar{
+  display:grid;place-items:center;width:24px;height:24px;border-radius:50%;flex:0 0 auto;
+  background:var(--gold-dim);color:var(--gold-l);font-size:.7rem;font-weight:700;
+  border:1px solid var(--border-active);
+}
+.profile-summary__text{display:flex;flex-direction:column;min-width:0;line-height:1.05}
+.profile-summary__label{font-size:.56rem;color:var(--muted);letter-spacing:.35px;margin-bottom:3px}
+.profile-summary__value{font-size:.7rem;color:var(--text);font-weight:600;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){
+  .profile-corner{top:10px;left:10px;gap:6px}
+  .profile-back{width:38px;padding:0;justify-content:center}
+  .profile-back span{display:none}
+  .profile-summary{padding-right:9px}
+  .profile-summary__label{display:none}
+  .profile-summary__value{max-width:82px}
+}
+
+/* Identity modal: managed business-line picker */
+.tk-managed{position:relative}
+.tk-managed-trigger{
+  width:100%;min-height:43px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);
+  font:.85rem/1.4 "Outfit","PingFang SC",sans-serif;cursor:pointer;text-align:left;transition:.22s;
+}
+.tk-managed-trigger:hover,.tk-managed-trigger[aria-expanded="true"]{border-color:var(--border-active);box-shadow:0 0 0 3px var(--gold-dim)}
+.tk-managed-trigger svg{width:16px;height:16px;flex:0 0 auto;stroke:var(--text2);fill:none;stroke-width:1.8;transition:transform .2s}
+.tk-managed-trigger[aria-expanded="true"] svg{transform:rotate(180deg)}
+.tk-managed-placeholder{color:var(--muted)}
+.tk-managed-menu{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:8;padding:6px;
+  border:1px solid var(--border-active);border-radius:12px;background:var(--surface);box-shadow:var(--shadow-lg);
+  max-height:270px;overflow:auto;animation:fadeIn .16s ease;
+}
+.tk-managed-option-row{display:flex;align-items:center;gap:4px;border-radius:8px}
+.tk-managed-option-row:hover{background:var(--hover)}
+.tk-managed-option{
+  width:100%;min-height:37px;padding:8px 9px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:0;border-radius:8px;background:transparent;color:var(--text);font:.8rem/1.3 "Outfit","PingFang SC",sans-serif;
+  cursor:pointer;text-align:left;transition:background-color .16s,color .16s;
+}
+.tk-managed-option:hover,.tk-managed-option[aria-selected="true"]{background:var(--gold-dim);color:var(--gold-l)}
+.tk-managed-option-row .tk-managed-option{flex:1;min-width:0}
+.tk-managed-option-row .tk-managed-option:hover{background:transparent}
+.tk-system-tag{font-size:.56rem;color:var(--muted);padding:2px 6px;border:1px solid var(--border);border-radius:999px;letter-spacing:.2px}
+.tk-delete-custom{
+  width:30px;height:30px;display:grid;place-items:center;flex:0 0 auto;margin-right:4px;
+  border:0;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;transition:.18s;
+}
+.tk-delete-custom:hover{background:rgba(255,123,123,.12);color:var(--red)}
+.tk-delete-custom:focus-visible{outline:2px solid var(--red);outline-offset:1px}
+.tk-delete-custom svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tk-custom-option-mark{font-size:.58rem;color:var(--gold-l);opacity:.85}
+
+/* Operator-only one-line asset creator */
+#operatorCreator{display:none}
+body.operator-mode #panel-batch{padding-top:34px}
+body.operator-mode #panel-batch.active{display:flex;flex-direction:column}
+body.operator-mode #operatorCreator{display:block}
+body.operator-mode #sectionApi{order:1}
+body.operator-mode #operatorCreator{order:2}
+body.operator-mode #sectionPromptBuilder{order:3}
+body.operator-mode #sectionGenerated{order:4}
+body.operator-mode #historySection{order:5}
+body.operator-mode #sectionManualBatch{display:none}
+body.operator-mode #sectionPromptBuilder{display:block;padding:18px}
+body.operator-mode #sectionPromptBuilder> *{display:none}
+body.operator-mode #sectionPromptBuilder>#assetPickerSection{display:block;margin:0}
+body.operator-mode #generationOutputOptions{display:none}
+body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-mode [data-act="reuse"]{display:none!important}
+.operator-creator{
+  padding:32px!important;background:
+  radial-gradient(circle at 92% 8%,rgba(216,171,72,.14),transparent 32%),
+  linear-gradient(145deg,var(--surface),var(--bg2));
+}
+.operator-kicker{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--gold-l);font-size:.68rem;font-weight:700;letter-spacing:1.3px;text-transform:uppercase}
+.operator-kicker::before{content:"";width:20px;height:1px;background:var(--gold)}
+.operator-creator h2{font-size:1.45rem!important;margin-bottom:7px!important;letter-spacing:.2px}
+.operator-intro{color:var(--text2);font-size:.8rem;margin-bottom:25px}
+.operator-field-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;color:var(--text2);font-size:.75rem;font-weight:600}
+.operator-field-label span{color:var(--muted);font-size:.65rem;font-weight:400}
+#operatorCopy{
+  width:100%;height:48px;padding:0 16px;border:1px solid var(--border);border-radius:12px;
+  background:var(--elevated);color:var(--text);font:.9rem "Outfit","PingFang SC",sans-serif;outline:none;transition:.22s;
+}
+#operatorCopy:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
+#operatorCopy::placeholder{color:var(--muted)}
+.placement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px}
+.placement-card{
+  min-height:112px;padding:14px;display:flex;align-items:center;gap:13px;border:1px solid var(--border);border-radius:14px;
+  background:var(--elevated);color:var(--text);font-family:inherit;text-align:left;cursor:pointer;transition:.22s;position:relative;
+}
+.placement-card:hover{transform:translateY(-2px);border-color:var(--border-active)}
+.placement-card.active{border-color:var(--gold);background:var(--gold-dim);box-shadow:0 0 0 2px var(--gold-dim)}
+.placement-check{position:absolute;top:9px;right:9px;width:18px;height:18px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;color:transparent;font-size:.6rem}
+.placement-card.active .placement-check{background:var(--gold);border-color:var(--gold);color:#15110A}
+.placement-shape-wrap{width:52px;height:58px;display:grid;place-items:center;flex:0 0 auto}
+.placement-shape{display:block;border:1px solid var(--border-active);border-radius:7px;background:linear-gradient(135deg,rgba(216,171,72,.22),rgba(216,171,72,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.placement-shape.banner{width:48px;height:41px}.placement-shape.large{width:46px;height:43px}.placement-shape.small{width:38px;height:38px}
+.placement-copy strong{display:block;font-size:.78rem;line-height:1.35;margin-bottom:5px}
+.placement-copy small{color:var(--muted);font-size:.66rem}
+.operator-actions{display:flex;align-items:center;gap:14px;margin-top:24px}
+#btnOperatorGenerate{min-width:156px;justify-content:center;font-size:.9rem;padding:12px 24px}
+.operator-service-status{font-size:.7rem;color:var(--muted)}
+.operator-service-status.ready{color:var(--green)}
+.operator-service-status.error{color:var(--red)}
+.operator-rule-note{display:flex;align-items:center;gap:7px;margin-top:16px;color:var(--muted);font-size:.65rem}
+.operator-rule-note svg{width:14px;height:14px;stroke:var(--gold-l);fill:none;stroke-width:1.8}
+.dimension-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:var(--gold-dim);color:var(--gold-l);font-size:.58rem;font-weight:700;letter-spacing:.3px}
+.gen-dim-row{padding:8px 12px 0;display:flex;align-items:center;gap:6px}
+@media(max-width:720px){
+  .operator-creator{padding:22px!important}.placement-grid{grid-template-columns:1fr}.placement-card{min-height:82px}
+  .operator-actions{align-items:stretch;flex-direction:column}.operator-actions .btn{width:100%}
+}
+
 /* ═══ Tabs ═══ */
 .tabs{
   display:flex;gap:0;
@@ -576,6 +711,20 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
 </head>
 <body>
 
+<div class="profile-corner" aria-label="当前身份">
+  <button class="profile-back" id="profileBackButton" type="button" aria-label="返回并重新选择身份" title="返回并重新选择身份">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/><path d="M9 12h10"/></svg>
+    <span>返回</span>
+  </button>
+  <div class="profile-summary" id="profileSummary" title="当前身份">
+    <span class="profile-summary__avatar" id="profileAvatar" aria-hidden="true">…</span>
+    <span class="profile-summary__text">
+      <span class="profile-summary__label">当前身份</span>
+      <strong class="profile-summary__value" id="profileIdentity">身份读取中</strong>
+    </span>
+  </div>
+</div>
+
 <header>
   <h1>批量素材工作台</h1>
   <p>Figma 设计稿风格 &nbsp;·&nbsp; AI 文生图 &nbsp;·&nbsp; 可视化编辑 &nbsp;·&nbsp; 一键导出</p>
@@ -659,6 +808,37 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
 <!-- ═══ Panel 3: AI Batch ═══ -->
 <div class="panel" id="panel-batch">
 
+  <div class="ai-section operator-creator" id="operatorCreator">
+    <div class="operator-kicker">运营素材快捷生成</div>
+    <h2>一句文案，直接生成可投放素材</h2>
+    <p class="operator-intro">输入本次营销诉求并选择投放位置，风格、构图与尺寸规则会自动完成。</p>
+    <div class="operator-field-label"><label for="operatorCopy">营销文案</label><span>一句话即可，建议 30 字以内</span></div>
+    <input id="operatorCopy" type="text" maxlength="60" autocomplete="off" placeholder="例如：新春理财收益翻倍，限时加息"/>
+    <div class="operator-field-label" style="margin-top:20px"><span style="color:var(--text2);font-size:.75rem;font-weight:600">素材投放位置</span><span>将自动输出准确像素尺寸</span></div>
+    <div class="placement-grid" id="operatorPlacements" role="radiogroup" aria-label="素材投放位置">
+      <button class="placement-card" type="button" role="radio" aria-checked="false" data-placement="banner">
+        <span class="placement-check">✓</span><span class="placement-shape-wrap"><span class="placement-shape banner"></span></span>
+        <span class="placement-copy"><strong>Banner</strong><small>200 × 170 px</small></span>
+      </button>
+      <button class="placement-card" type="button" role="radio" aria-checked="false" data-placement="home-large">
+        <span class="placement-check">✓</span><span class="placement-shape-wrap"><span class="placement-shape large"></span></span>
+        <span class="placement-copy"><strong>首页二屏一拖二大卡</strong><small>170 × 160 px</small></span>
+      </button>
+      <button class="placement-card" type="button" role="radio" aria-checked="false" data-placement="home-small">
+        <span class="placement-check">✓</span><span class="placement-shape-wrap"><span class="placement-shape small"></span></span>
+        <span class="placement-copy"><strong>首页二屏一拖二小卡</strong><small>80 × 80 px</small></span>
+      </button>
+    </div>
+    <div class="operator-actions">
+      <button class="btn btn-primary" id="btnOperatorGenerate" type="button">生成可用素材</button>
+      <span class="operator-service-status" id="operatorServiceStatus">正在检查生成服务…</span>
+    </div>
+    <div class="operator-rule-note">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v5c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      已内置 3D 电商营销素材规范，自动控制视觉元素、材质、构图和输出尺寸
+    </div>
+  </div>
+
   <!-- API Settings -->
   <div class="ai-section" id="sectionApi">
     <h2 class="collapse-toggle" data-target="apiBody">
@@ -729,7 +909,7 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
       </details>
 
       <p class="hint" id="keyPersistHint" style="margin-top:10px">🔒 Key 仅保存在你当前浏览器本地，下次打开自动填充（不会上传给作者，也不会被同事看到）</p>
-      <div class="api-row">
+      <div class="api-row" id="generationOutputOptions">
         <div class="field">
           <label>图片尺寸</label>
           <select id="aiSize"></select>
@@ -746,7 +926,7 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
   </div>
 
   <!-- Prompt Builder -->
-  <div class="ai-section">
+  <div class="ai-section" id="sectionPromptBuilder">
     <h2>提示词构建器 <span class="badge">你的描述习惯</span></h2>
     <p class="hint" style="margin:-8px 0 12px 0">从素材库选图自动填入 prompt，或用下方字段手动构建。主描述 = 个数 + 风格 + 颜色 + 主体物 + 元素位置；附加描述 = 各元素之间的关系与细节。</p>
 
@@ -846,11 +1026,11 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
   </div>
 
   <!-- Generated Results -->
-  <div class="ai-section">
+  <div class="ai-section" id="sectionGenerated">
     <h2>生成结果 · <span id="genCount">0</span> 张</h2>
     <div id="genEmpty" class="empty-state">
       <div class="icon">&#x1F3A8;</div>
-      <p>填写提示词后点击「开始 AI 生成」，结果会出现在这里</p>
+      <p>生成完成的素材会出现在这里</p>
     </div>
     <div class="gen-results" id="genResults"></div>
     <div class="actions" id="genBulkActions" style="display:none">
@@ -879,7 +1059,7 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
   </div>
 
   <!-- Manual Batch (from editor) -->
-  <div class="ai-section">
+  <div class="ai-section" id="sectionManualBatch">
     <h2 class="collapse-toggle" data-target="manualBatchBody">
       <span class="arrow">&#9654;</span>
       手动编辑列表 · <span id="batchCount">0</span> 张
@@ -1065,6 +1245,7 @@ const $$=s=>[...document.querySelectorAll(s)];
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
 function assetPath(a){return"assets/"+(a.file||a)}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]))}
 
 /* ══════════════════════ TABS ══════════════════════ */
 $$(".tab").forEach(t=>t.onclick=()=>{
@@ -1678,6 +1859,7 @@ function syncProviderUI(){
   $("#keyHint").textContent=cfg.keyHint;
 
   $("#keyHelpBody").innerHTML=KEY_HELP[pv]||"";
+  if(typeof updateOperatorServiceStatus==="function")setTimeout(updateOperatorServiceStatus,0);
 }
 function syncModelUI(){
   const pv=$("#aiProvider").value;
@@ -1727,8 +1909,8 @@ $("#aiProvider").onchange=()=>{
   }
 };
 $("#aiModel").onchange=syncModelUI;
-$("#aiKey").oninput=()=>{checkSaveGeminiKey();saveCurrentApiPrefs()};
-$("#aiKey").onchange=()=>{checkSaveGeminiKey();saveCurrentApiPrefs()};
+$("#aiKey").oninput=()=>{checkSaveGeminiKey();saveCurrentApiPrefs();updateOperatorServiceStatus()};
+$("#aiKey").onchange=()=>{checkSaveGeminiKey();saveCurrentApiPrefs();updateOperatorServiceStatus()};
 $("#aiEndpoint").oninput=saveCurrentApiPrefs;
 $("#aiRegion").onchange=saveCurrentApiPrefs;
 $("#aiWorkspace").oninput=saveCurrentApiPrefs;
@@ -1748,7 +1930,7 @@ if($("#aiAccessKey")){
       $("#jimengParseHint").style.display="block";
       setTimeout(()=>{$("#jimengParseHint").style.display="none"},4000);
     }
-    saveCurrentApiPrefs();
+      saveCurrentApiPrefs();updateOperatorServiceStatus();
   };
   $("#aiAccessKey").oninput=()=>detectAndSplit($("#aiAccessKey"));
   $("#aiSecretKey").oninput=()=>detectAndSplit($("#aiSecretKey"));
@@ -1947,6 +2129,116 @@ function renderScenePresets(){
   });
 }
 
+/* ══════════════════════ OPERATOR QUICK CREATOR ══════════════════════ */
+const OPERATOR_PLACEMENTS={
+  banner:{label:"Banner",width:200,height:170},
+  "home-large":{label:"首页二屏一拖二大卡",width:170,height:160},
+  "home-small":{label:"首页二屏一拖二小卡",width:80,height:80},
+};
+let operatorPlacement="";
+let operatorGenerationContext=null;
+
+function mapMarketingCopyToSymbols(copy){
+  const rules=[
+    {keys:["PK","pk","冠军","夺冠","赢","大奖","奖励"],main:"奖杯",support:"奖牌"},
+    {keys:["科技","芯片","半导体","AI","智能"],main:"半透明芯片",support:"上升箭头"},
+    {keys:["签到","打卡","连续"],main:"极简日历",support:"金币"},
+    {keys:["秒杀","限时","抢购","速抢"],main:"几何闪电",support:"优惠券"},
+    {keys:["新春","春节","元宵","过年","节日"],main:"半透明灯笼",support:"金币"},
+    {keys:["保险","医疗","健康","保障"],main:"半透明盾牌",support:"医疗十字"},
+    {keys:["信用","额度","借钱","贷款","免息"],main:"半透明额度卡",support:"金币"},
+    {keys:["黄金","金价","贵金属"],main:"几何金条",support:"上升箭头"},
+    {keys:["收益","理财","年化","利率","上涨","增长","翻倍","加息","赚钱"],main:"几何金条",support:"上升箭头"},
+    {keys:["福利","优惠","补贴","红包","立减","领券"],main:"半透明优惠券",support:"金币"},
+  ];
+  return rules.find(rule=>rule.keys.some(key=>copy.includes(key)))||{main:"半透明礼盒",support:"金币"};
+}
+
+function buildEmbeddedSkillPrompt(copy,placement){
+  const spec=OPERATOR_PLACEMENTS[placement];
+  const symbols=mapMarketingCopyToSymbols(copy);
+  const ratio=Number((spec.width/spec.height).toFixed(3));
+  return `围绕营销语义“${copy}”进行纯视觉符号化表达。极简3D电商营销UI组件素材，主体为${symbols.main}，辅助元素为${symbols.support}，总元素数量不超过2个，单主体居中悬浮构图，主体完整并保留充足安全留白，适配${spec.label}，目标画面比例约${ratio}:1。C4D / Octane渲染风格，半透明亚克力材质，毛玻璃树脂质感，香槟金与橙金渐变边缘高光，柔和环境漫反射光，极淡软阴影，干净浅米色或暖白背景，电商UI组件感，可独立抠图。画面中绝对不出现营销文案、文字、数字、字母、Logo或界面截图；不要海报、不要KV、不要插画、不要复杂场景、不要多余物体、不要人物或IP、不要写实工业风、不要强镜面反射。`;
+}
+
+function getGenerationKey(){
+  return $("#aiProvider").value==="jimeng"?jimengComposeKey():$("#aiKey").value.trim();
+}
+
+function updateOperatorServiceStatus(){
+  const status=$("#operatorServiceStatus");
+  if(!status)return;
+  const ready=!!getGenerationKey();
+  status.className="operator-service-status "+(ready?"ready":"error");
+  status.textContent=ready?"● 生成服务已就绪":"生成服务暂未配置，请联系管理员";
+}
+
+function applyWorkspaceRole(roleName){
+  const isOperator=roleName==="运营";
+  document.body.classList.toggle("operator-mode",isOperator);
+  if(!isOperator)return;
+  $$(".panel").forEach(panel=>panel.classList.remove("active"));
+  $$(".tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.panel==="batch"));
+  $("#panel-batch").classList.add("active");
+  updateOperatorServiceStatus();
+}
+
+$$("#operatorPlacements .placement-card").forEach(card=>{
+  card.onclick=()=>{
+    operatorPlacement=card.dataset.placement;
+    $$("#operatorPlacements .placement-card").forEach(item=>{
+      const active=item===card;item.classList.toggle("active",active);item.setAttribute("aria-checked",String(active));
+    });
+  };
+});
+
+function setClosestGenerationRatio(placement){
+  const pv=$("#aiProvider").value;
+  const candidates={
+    gemini:{banner:"4:3","home-large":"1:1","home-small":"1:1"},
+    jimeng:{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
+    openai:{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
+    "openai-compat":{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
+  };
+  const desired=candidates[pv]?.[placement];
+  if(desired&&Array.from($("#aiSize").options).some(option=>option.value===desired))$("#aiSize").value=desired;
+}
+
+async function resizeToOperatorPlacement(dataUrl,spec){
+  try{
+    const image=await new Promise((resolve,reject)=>{
+      const img=new Image();
+      if(/^https?:/i.test(dataUrl))img.crossOrigin="anonymous";
+      img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("图片载入失败"));img.src=dataUrl;
+    });
+    const canvas=document.createElement("canvas");canvas.width=spec.width;canvas.height=spec.height;
+    const ctx=canvas.getContext("2d");ctx.fillStyle="#F8F3E9";ctx.fillRect(0,0,spec.width,spec.height);
+    const scale=Math.max(spec.width/image.width,spec.height/image.height);
+    const drawW=image.width*scale,drawH=image.height*scale;
+    ctx.drawImage(image,(spec.width-drawW)/2,(spec.height-drawH)/2,drawW,drawH);
+    return {dataUrl:canvas.toDataURL("image/png"),normalized:true};
+  }catch(error){return {dataUrl,normalized:false}}
+}
+
+$("#btnOperatorGenerate").onclick=()=>{
+  const copy=$("#operatorCopy").value.trim();
+  const status=$("#operatorServiceStatus");
+  if(!copy){status.className="operator-service-status error";status.textContent="请先输入一句营销文案";$("#operatorCopy").focus();return}
+  if(!operatorPlacement){status.className="operator-service-status error";status.textContent="请选择素材投放位置";return}
+  if(!getGenerationKey()){updateOperatorServiceStatus();return}
+  const spec=OPERATOR_PLACEMENTS[operatorPlacement];
+  let embeddedPrompt=buildEmbeddedSkillPrompt(copy,operatorPlacement);
+  if(pickedAsset)embeddedPrompt+=` 视觉灵感可参考素材“${pickedAsset.label}”，仅提取其核心视觉符号与质感，不复制其中的文字、数字、Logo或复杂构图。`;
+  operatorGenerationContext={copy,placement:operatorPlacement,...spec,prompt:embeddedPrompt};
+  $("#aiFinalPrompt").value=operatorGenerationContext.prompt;
+  $("#aiBatchCount").value="1";$("#aiDelay").value="0";
+  setClosestGenerationRatio(operatorPlacement);
+  status.className="operator-service-status ready";status.textContent=`正在生成 ${spec.width} × ${spec.height} px 素材…`;
+  $("#btnOperatorGenerate").disabled=true;
+  $("#btnGenerate").click();
+  setTimeout(()=>$("#sectionGenerated").scrollIntoView({behavior:"smooth",block:"start"}),120);
+};
+
 function buildPrompt(){
   const count=$("#aiCount").value.trim();
   const style=$("#aiStyle").value.trim();
@@ -2051,7 +2343,7 @@ function base64ToBlob(base64,mimeType="image/png"){
 }
 
 async function callImageApi(prompt,refBase64){
-  const key=$("#aiKey").value.trim();
+  const key=getGenerationKey();
   if(!key) throw new Error("请先填写 API Key");
   const pv=$("#aiProvider").value;
   const model=$("#aiModel").value;
@@ -2198,10 +2490,12 @@ function renderGenResults(){
     if(item.status==="generating"){
       d.innerHTML=`<div class="gen-placeholder"><div class="spinner"></div><span>生成中… #${i+1}</span></div><span class="gen-status generating">生成中</span>`;
     }else if(item.status==="done"){
+      const dimensionInfo=item.width&&item.height?`<div class="gen-dim-row"><span class="dimension-badge">${item.width} × ${item.height} px</span>${item.placementLabel?`<span class="dimension-badge">${item.placementLabel}</span>`:""}</div>`:"";
       d.innerHTML=`
-        <img src="${item.dataUrl}" alt="生成 #${i+1}"/>
+        <img src="${item.dataUrl}" alt="生成 #${i+1}" style="${item.width&&item.height?`aspect-ratio:${item.width}/${item.height}`:""}"/>
         <span class="gen-status done">完成</span>
-        <div class="gen-info">提示词: ${item.prompt.substring(0,60)}…</div>
+        ${dimensionInfo}
+        <div class="gen-info">提示词: ${escapeHtml(item.prompt.substring(0,60))}…</div>
         <div class="gen-actions">
           <button class="btn btn-primary" style="padding:6px 12px;font-size:.75rem" data-act="dl" data-i="${i}">下载</button>
           <button class="btn btn-blue" style="padding:6px 12px;font-size:.75rem" data-act="save" data-i="${i}">存入素材库</button>
@@ -2209,15 +2503,17 @@ function renderGenResults(){
         </div>`;
     }else{
       const err=item.error||"";
+      const visibleErr=document.body.classList.contains("operator-mode")?"生成失败，请联系管理员检查生成服务":err;
       const isQuota=err.includes("配额")||err.includes("quota")||err.includes("429");
-      const hint=isQuota?'<br><span style="font-size:.6875rem;color:var(--orange)">免费额度已用完，请等待重置或开通付费计划，也可切换到其他服务商（如千问）</span>':"";
-      d.innerHTML=`<div class="gen-placeholder" style="color:var(--red)"><span>失败 #${i+1}</span><span style="font-size:.75rem;text-align:center;padding:0 12px">${err}${hint}</span></div><span class="gen-status failed">失败</span><div class="gen-actions"><button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem" data-act="del" data-i="${i}">移除</button></div>`;
+      const hint=isQuota&&!document.body.classList.contains("operator-mode")?'<br><span style="font-size:.6875rem;color:var(--orange)">免费额度已用完，请等待重置或开通付费计划，也可切换到其他服务商（如千问）</span>':"";
+      d.innerHTML=`<div class="gen-placeholder" style="color:var(--red)"><span>失败 #${i+1}</span><span style="font-size:.75rem;text-align:center;padding:0 12px">${escapeHtml(visibleErr)}${hint}</span></div><span class="gen-status failed">失败</span><div class="gen-actions"><button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem" data-act="del" data-i="${i}">移除</button></div>`;
     }
     d.querySelectorAll("button").forEach(btn=>{
       btn.onclick=()=>{
         const idx=+btn.dataset.i;
         if(btn.dataset.act==="dl"&&genResults[idx].dataUrl){
-          const a=document.createElement("a");a.download="ai-gen-"+(idx+1)+".png";a.href=genResults[idx].dataUrl;a.click();toast("已下载")
+          const result=genResults[idx];
+          const a=document.createElement("a");a.download=result.width&&result.height?`营销素材-${result.width}x${result.height}-${idx+1}.png`:"ai-gen-"+(idx+1)+".png";a.href=result.dataUrl;a.click();toast("已下载")
         }
         if(btn.dataset.act==="save"&&genResults[idx].dataUrl){
           const r=genResults[idx];
@@ -2236,12 +2532,14 @@ function renderGenResults(){
 }
 
 $("#btnGenerate").onclick=async()=>{
-  const key=$("#aiKey").value.trim();
+  const key=getGenerationKey();
   if(!key){toast("请先在上方填写 API Key");return}
   const prompt=$("#aiFinalPrompt").value.trim();
   if(!prompt){toast("请填写提示词");return}
   const count=+$("#aiBatchCount").value;
   const delayMs=(+$("#aiDelay").value||3)*1000;
+  const operatorRunContext=document.body.classList.contains("operator-mode")&&operatorGenerationContext?{...operatorGenerationContext}:null;
+  const runStartIndex=genResults.length;
 
   genStopped=false;
   $("#btnGenerate").disabled=true;
@@ -2266,8 +2564,14 @@ $("#btnGenerate").onclick=async()=>{
     const _model=$("#aiModel")?.value||"";
     try{
       const url=await callImageApi(prompt,refBase64);
-      if(genResults[idx]) genResults[idx]={status:"done",prompt,dataUrl:url};
-      TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"success",meta:{hasRef:!!refBase64}});
+      let finalUrl=url,normalized=false;
+      if(operatorRunContext){
+        const processed=await resizeToOperatorPlacement(url,operatorRunContext);
+        if(!processed.normalized)throw new Error("图片已生成，但无法转换为目标尺寸，请联系管理员检查生成服务的图片访问设置");
+        finalUrl=processed.dataUrl;normalized=processed.normalized;
+      }
+      if(genResults[idx]) genResults[idx]={status:"done",prompt,dataUrl:finalUrl,width:operatorRunContext?.width,height:operatorRunContext?.height,placement:operatorRunContext?.placement,placementLabel:operatorRunContext?.label,normalized};
+      TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"success",meta:{hasRef:!!refBase64,placement:operatorRunContext?.placement||null,outputSize:operatorRunContext?`${operatorRunContext.width}x${operatorRunContext.height}`:null}});
     }catch(e){
       if(genResults[idx]) genResults[idx]={status:"failed",prompt,error:e.message||"未知错误"};
       TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"failed",error:e.message||"未知错误"});
@@ -2291,6 +2595,13 @@ $("#btnGenerate").onclick=async()=>{
   $("#btnStopGen").style.display="none";
   $("#genProgress").style.display="none";
   $("#genStatus").textContent=genStopped?"已停止":"全部完成";
+  if(operatorRunContext){
+    const operatorStatus=$("#operatorServiceStatus");
+    const operatorSucceeded=genResults.slice(runStartIndex).some(result=>result.status==="done");
+    operatorStatus.className="operator-service-status "+(!genStopped&&operatorSucceeded?"ready":"error");
+    operatorStatus.textContent=genStopped?"生成已停止":operatorSucceeded?`生成完成 · ${operatorRunContext.width} × ${operatorRunContext.height} px`:"生成失败，请联系管理员检查生成服务";
+    $("#btnOperatorGenerate").disabled=false;
+  }
   toast(genStopped?"已停止生成":"批量生成完成");
 };
 
@@ -2305,7 +2616,7 @@ $("#btnDownloadAllGen").onclick=()=>{
   const done=genResults.filter(r=>r.status==="done");
   if(!done.length){toast("没有可下载的图片");return}
   done.forEach((r,i)=>{
-    setTimeout(()=>{const a=document.createElement("a");a.download="ai-gen-"+(i+1)+".png";a.href=r.dataUrl;a.click()},i*400);
+    setTimeout(()=>{const a=document.createElement("a");a.download=r.width&&r.height?`营销素材-${r.width}x${r.height}-${i+1}.png`:"ai-gen-"+(i+1)+".png";a.href=r.dataUrl;a.click()},i*400);
   });
   toast("正在下载 "+done.length+" 张");
 };
@@ -2335,7 +2646,7 @@ function addToHistory(items){
   const model=($("#aiModel")||{}).value||"unknown";
   const provider=($("#aiProvider")||{}).value||"unknown";
   items.forEach(item=>{
-    hist.push({id:Date.now()+"_"+Math.random().toString(36).slice(2,8),dataUrl:item.dataUrl,prompt:item.prompt,date:ts,model,provider});
+    hist.push({id:Date.now()+"_"+Math.random().toString(36).slice(2,8),dataUrl:item.dataUrl,prompt:item.prompt,date:ts,model,provider,width:item.width||null,height:item.height||null,placement:item.placement||null,placementLabel:item.placementLabel||null});
   });
   saveHistory(hist);
   renderHistory();
@@ -2376,12 +2687,14 @@ function renderHistory(){
   hist.slice().reverse().forEach((item,i)=>{
     const d=document.createElement("div");d.className="gen-card hist-card";
     const promptShort=(item.prompt||"").substring(0,80);
+    const historyDimension=item.width&&item.height?`<div class="gen-dim-row"><span class="dimension-badge">${item.width} × ${item.height} px</span>${item.placementLabel?`<span class="dimension-badge">${item.placementLabel}</span>`:""}</div>`:"";
     d.innerHTML=`
-      <img src="${item.dataUrl}" alt="历史 #${i+1}"/>
+      <img src="${item.dataUrl}" alt="历史 #${i+1}" style="${item.width&&item.height?`aspect-ratio:${item.width}/${item.height}`:""}"/>
       <span class="gen-status done">历史</span>
+      ${historyDimension}
       <div class="hist-date">${item.date||""} · ${item.model||""}</div>
       <div class="hist-prompt-row">
-        <span class="hist-prompt-text">${promptShort}${promptShort.length<(item.prompt||"").length?"…":""}</span>
+        <span class="hist-prompt-text">${escapeHtml(promptShort)}${promptShort.length<(item.prompt||"").length?"…":""}</span>
         <button class="hist-edit-btn" data-act="editPrompt">编辑</button>
       </div>
       <div class="gen-actions">
@@ -2396,7 +2709,7 @@ function renderHistory(){
         e.stopPropagation();
         const act=btn.dataset.act;
         if(act==="dl"){
-          const a=document.createElement("a");a.download="history-"+hid+".png";a.href=item.dataUrl;a.click();toast("已下载");
+          const a=document.createElement("a");a.download=item.width&&item.height?`营销素材-${item.width}x${item.height}.png`:"history-"+hid+".png";a.href=item.dataUrl;a.click();toast("已下载");
         }
         if(act==="save"){
           const newA={file:null,dataUrl:item.dataUrl,label:"历史-"+(item.date||"").replace(/\//g,""),cat:"AI生成",prompt:item.prompt||""};
@@ -2531,9 +2844,60 @@ const TRACKER=(function(){
     `;
   }
 
-  function ensureProfileModal(){
+  function escapeProfileMarkup(value){
+    return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+  }
+
+  function buildBusinessGroup(custom,currentValue){
+    const removableCustom=custom.filter(value=>!DEFAULT_BIZ.includes(value));
+    const defaultRows=DEFAULT_BIZ.map(value=>`
+      <button class="tk-managed-option" type="button" role="option" data-value="${escapeProfileMarkup(value)}" aria-selected="${value===currentValue}">
+        <span>${escapeProfileMarkup(value)}</span><span class="tk-system-tag">系统</span>
+      </button>`).join("");
+    const customRows=removableCustom.map(value=>`
+      <div class="tk-managed-option-row" data-custom-row="${escapeProfileMarkup(value)}">
+        <button class="tk-managed-option" type="button" role="option" data-value="${escapeProfileMarkup(value)}" aria-selected="${value===currentValue}">
+          <span>${escapeProfileMarkup(value)}</span><span class="tk-custom-option-mark">自定义</span>
+        </button>
+        <button class="tk-delete-custom" type="button" data-delete-value="${escapeProfileMarkup(value)}" aria-label="删除自定义业务线 ${escapeProfileMarkup(value)}" title="删除“${escapeProfileMarkup(value)}”">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5"/></svg>
+        </button>
+      </div>`).join("");
+    const valueLabel=currentValue||"请选择业务线";
+    return `
+      <div style="margin-bottom:14px;text-align:left">
+        <label style="display:block;font-size:.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:.4px">业务线</label>
+        <div class="tk-managed">
+          <button class="tk-managed-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span class="tk-managed-value ${currentValue?"":"tk-managed-placeholder"}">${escapeProfileMarkup(valueLabel)}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+          </button>
+          <div class="tk-managed-menu" role="listbox" hidden>
+            ${defaultRows}${customRows}
+            <button class="tk-managed-option tk-managed-add" type="button" role="option" data-value="__custom__" aria-selected="false"><span>＋ 自定义…</span></button>
+          </div>
+          <div class="tk-managed-custom-row" style="display:none;gap:8px">
+            <input class="tk-custom" type="text" maxlength="20" placeholder="输入新业务线" style="flex:1;padding:11px 12px;border:1px solid var(--border-active);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;font-family:inherit;outline:none"/>
+            <button class="tk-back" type="button" style="padding:0 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;font-size:.75rem">↶</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function updateProfileUI(){
+    const identity=document.getElementById("profileIdentity");
+    const avatar=document.getElementById("profileAvatar");
+    const summary=document.getElementById("profileSummary");
+    if(!identity||!avatar||!summary)return;
+    identity.textContent=role&&business ? `${role} · ${business}` : (role||"未选择身份");
+    avatar.textContent=(role||erp||"?").trim().charAt(0).toUpperCase();
+    summary.title=erp ? `ERP：${erp}\n角色：${role||"未填写"}\n业务线：${business||"未填写"}` : "当前身份尚未完善";
+    if(typeof applyWorkspaceRole==="function")applyWorkspaceRole(role);
+  }
+
+  function ensureProfileModal(force){
     return new Promise(resolve=>{
-      if(erp&&role&&business)return resolve();
+      if(!force&&erp&&role&&business){updateProfileUI();return resolve(true)}
 
       const ov=document.createElement("div");
       ov.style.cssText="position:fixed;inset:0;z-index:999999;background:var(--onboarding-backdrop);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s";
@@ -2542,8 +2906,8 @@ const TRACKER=(function(){
       box.innerHTML=`
         <div style="text-align:center;margin-bottom:22px">
           <div style="font-size:1.9rem;margin-bottom:4px">👋</div>
-          <h2 style="color:var(--gold-l);font-size:1.15rem;letter-spacing:.5px;font-weight:600;margin-bottom:6px">欢迎使用素材生成工具</h2>
-          <p style="color:var(--text2);font-size:.78rem;line-height:1.6">请填写以下信息，方便协作沟通和素材溯源<br/><span style="color:var(--muted);font-size:.7rem">仅本地保存，只需填一次</span></p>
+          <h2 style="color:var(--gold-l);font-size:1.15rem;letter-spacing:.5px;font-weight:600;margin-bottom:6px">${force?"重新选择身份":"欢迎使用素材生成工具"}</h2>
+          <p style="color:var(--text2);font-size:.78rem;line-height:1.6">请填写以下信息，方便协作沟通和素材溯源<br/><span style="color:var(--muted);font-size:.7rem">仅本地保存，之后可从左上角重新选择</span></p>
         </div>
 
         <div id="tkErpField" style="margin-bottom:14px;text-align:left">
@@ -2552,20 +2916,24 @@ const TRACKER=(function(){
         </div>
 
         <div id="tkRoleField">${buildSelectGroup("角色",DEFAULT_ROLES,loadCustomList(CUSTOM_ROLES_KEY),"请选择角色")}</div>
-        <div id="tkBizField">${buildSelectGroup("业务线",DEFAULT_BIZ,loadCustomList(CUSTOM_BIZ_KEY),"请选择业务线")}</div>
+        <div id="tkBizField">${buildBusinessGroup(loadCustomList(CUSTOM_BIZ_KEY),business)}</div>
 
-        <button id="tkProfileConfirm" type="button" style="margin-top:8px;width:100%;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#D8AB48,#C89530);color:#0B0B11;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;letter-spacing:.5px">开始使用</button>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          ${force?'<button id="tkProfileCancel" type="button" style="flex:0 0 92px;padding:13px;border:1px solid var(--border);border-radius:11px;background:var(--elevated);color:var(--text2);font-size:.86rem;font-weight:500;cursor:pointer;font-family:inherit">取消</button>':""}
+          <button id="tkProfileConfirm" type="button" style="flex:1;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#D8AB48,#C89530);color:#0B0B11;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;letter-spacing:.5px">${force?"确认身份":"开始使用"}</button>
+        </div>
         <p id="tkProfileErr" style="color:var(--red);font-size:.72rem;margin-top:10px;text-align:center;min-height:16px"></p>
       `;
       ov.appendChild(box);document.body.appendChild(ov);
 
       const erpInput=box.querySelector("#tkErpInput");
       const err=box.querySelector("#tkProfileErr");
+      erpInput.value=erp;
       setTimeout(()=>erpInput.focus(),120);
       erpInput.onfocus=()=>{erpInput.style.borderColor="rgba(216,171,72,.45)";erpInput.style.boxShadow="0 0 0 3px rgba(216,171,72,.1)"};
       erpInput.onblur=()=>{erpInput.style.boxShadow="none"};
 
-      function wireSelectGroup(wrap,customKey){
+      function wireSelectGroup(wrap,customKey,currentValue){
         const sel=wrap.querySelector(".tk-select");
         const custom=wrap.querySelector(".tk-custom");
         const back=wrap.querySelector(".tk-back");
@@ -2581,6 +2949,11 @@ const TRACKER=(function(){
           custom.value="";custom.style.display="none";back.style.display="none";
           sel.value="";sel.style.display="block";
         };
+        if(currentValue){
+          const hasOption=Array.from(sel.options).some(option=>option.value===currentValue);
+          if(hasOption)sel.value=currentValue;
+          else{sel.style.display="none";custom.style.display="block";back.style.display="block";custom.value=currentValue}
+        }
         return {getValue(){
           if(custom.style.display!=="none"){
             const v=custom.value.trim();
@@ -2594,8 +2967,78 @@ const TRACKER=(function(){
         }};
       }
 
-      const roleGroup=wireSelectGroup(box.querySelector("#tkRoleField"),CUSTOM_ROLES_KEY);
-      const bizGroup=wireSelectGroup(box.querySelector("#tkBizField"),CUSTOM_BIZ_KEY);
+      function wireBusinessGroup(wrap,currentValue){
+        const managed=wrap.querySelector(".tk-managed");
+        const trigger=managed.querySelector(".tk-managed-trigger");
+        const valueLabel=managed.querySelector(".tk-managed-value");
+        const menu=managed.querySelector(".tk-managed-menu");
+        const customRow=managed.querySelector(".tk-managed-custom-row");
+        const custom=managed.querySelector(".tk-custom");
+        const back=managed.querySelector(".tk-back");
+        let selectedValue=currentValue||"";
+
+        function setOpen(open){
+          menu.hidden=!open;
+          trigger.setAttribute("aria-expanded",String(open));
+        }
+        function setValue(value){
+          selectedValue=value;
+          valueLabel.textContent=value||"请选择业务线";
+          valueLabel.classList.toggle("tk-managed-placeholder",!value);
+          managed.querySelectorAll(".tk-managed-option[data-value]").forEach(option=>option.setAttribute("aria-selected",String(option.dataset.value===value)));
+        }
+        trigger.onclick=()=>setOpen(menu.hidden);
+        menu.onclick=event=>{
+          const deleteButton=event.target.closest(".tk-delete-custom");
+          if(deleteButton){
+            const value=deleteButton.dataset.deleteValue;
+            const updated=loadCustomList(CUSTOM_BIZ_KEY).filter(item=>item!==value);
+            saveCustomList(CUSTOM_BIZ_KEY,updated);
+            const row=deleteButton.closest(".tk-managed-option-row");
+            if(row)row.remove();
+            if(selectedValue===value)setValue("");
+            if(business===value){
+              business="";
+              localStorage.removeItem(BIZ_KEY);
+              updateProfileUI();
+              err.textContent=`已删除“${value}”，请重新选择业务线`;
+            }else{
+              err.textContent=`已删除自定义业务线“${value}”`;
+            }
+            return;
+          }
+          const option=event.target.closest(".tk-managed-option[data-value]");
+          if(!option)return;
+          if(option.dataset.value==="__custom__"){
+            setOpen(false);trigger.style.display="none";customRow.style.display="flex";
+            setTimeout(()=>custom.focus(),50);return;
+          }
+          setValue(option.dataset.value);setOpen(false);err.textContent="";
+        };
+        back.onclick=()=>{
+          custom.value="";customRow.style.display="none";trigger.style.display="flex";setOpen(false);
+        };
+        ov.addEventListener("click",event=>{if(!managed.contains(event.target))setOpen(false)});
+        managed.addEventListener("keydown",event=>{if(event.key==="Escape"){setOpen(false);trigger.focus()}});
+
+        return {getValue(){
+          if(customRow.style.display!=="none"){
+            const value=custom.value.trim();
+            if(value&&!DEFAULT_BIZ.includes(value)){
+              const list=loadCustomList(CUSTOM_BIZ_KEY);
+              if(!list.includes(value)){list.push(value);saveCustomList(CUSTOM_BIZ_KEY,list)}
+            }
+            return value;
+          }
+          return selectedValue;
+        }};
+      }
+
+      const roleGroup=wireSelectGroup(box.querySelector("#tkRoleField"),CUSTOM_ROLES_KEY,role);
+      const bizGroup=wireBusinessGroup(box.querySelector("#tkBizField"),business);
+
+      const cancelButton=box.querySelector("#tkProfileCancel");
+      if(cancelButton)cancelButton.onclick=()=>{ov.remove();resolve(false)};
 
       box.querySelector("#tkProfileConfirm").onclick=()=>{
         const erpV=erpInput.value.trim();
@@ -2608,7 +3051,8 @@ const TRACKER=(function(){
         localStorage.setItem(ERP_KEY,erp);
         localStorage.setItem(ROLE_KEY,role);
         localStorage.setItem(BIZ_KEY,business);
-        ov.remove();resolve();
+        updateProfileUI();
+        ov.remove();resolve(true);
       };
     });
   }
@@ -2649,7 +3093,7 @@ const TRACKER=(function(){
       meta:meta
     };
     try{
-      fetch(URL+"/rest/v1/tracker_events",{method:"POST",headers:HEADERS,body:JSON.stringify(body)});
+      fetch(URL+"/rest/v1/tracker_events",{method:"POST",headers:HEADERS,body:JSON.stringify(body)}).catch(()=>{});
     }catch(e){}
   }
 
@@ -2659,8 +3103,16 @@ const TRACKER=(function(){
     upsertUser();
     log({type:"visit"});
   }
+  async function reselectProfile(){
+    const changed=await ensureProfileModal(true);
+    if(!changed)return;
+    await upsertUser();
+    log({type:"identity_change"});
+    toast("身份已更新");
+  }
   function getProfile(){return {erp,role,business,deviceId}}
-  return {init,log,getProfile};
+  updateProfileUI();
+  return {init,log,getProfile,reselectProfile};
 })();
 
 /* ══════════════════════ INIT ══════════════════════ */
@@ -2670,6 +3122,7 @@ if($("#aiKey").value.trim()){
   setTimeout(()=>{$("#btnTestApi").click()},350);
 }
 TRACKER.init();
+document.getElementById("profileBackButton").addEventListener("click",()=>TRACKER.reselectProfile());
 </script>
 </body>
 </html>
