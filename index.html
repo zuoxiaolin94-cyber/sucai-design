@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-page="workspace">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<script>(function(){try{document.documentElement.dataset.theme=localStorage.getItem("sucai-theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}})();</script>
 <title>理财投资二屏卡 · 批量素材工作台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -355,15 +356,6 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
 .progress-bar{height:3px;background:var(--elevated);border-radius:2px;overflow:hidden;margin-top:14px}
 .progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;transition:width .3s;width:0}
 
-/* ═══ Reference Images ═══ */
-.ref-images{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;max-height:200px;overflow-y:auto;padding:4px}
-.ref-images .ref-thumb{
-  width:56px;height:56px;border-radius:8px;object-fit:contain;
-  background:var(--elevated);border:2px solid transparent;cursor:pointer;transition:.2s;
-}
-.ref-images .ref-thumb.selected{border-color:var(--gold);box-shadow:0 0 10px var(--gold-dim)}
-.ref-images .ref-thumb:hover{border-color:rgba(255,255,255,.12)}
-
 /* ═══ Batch ═══ */
 .batch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .batch-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
@@ -423,16 +415,44 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
 .modal-close:hover{background:var(--elevated);color:var(--text)}
 .modal-preview-img{width:100%;max-height:200px;object-fit:contain;border-radius:12px;background:var(--elevated);margin-bottom:18px}
 
-/* ═══ Asset Picker ═══ */
-.asset-picker-section{margin-bottom:18px}
+/* ═══ Collapsible Asset Picker ═══ */
+.asset-picker-section{
+  margin-bottom:18px;border:1px solid var(--border);border-radius:14px;
+  background:var(--surface);overflow:hidden;transition:border-color .25s,box-shadow .25s;
+}
+.asset-picker-section.is-open{border-color:rgba(123,154,255,.28);box-shadow:0 8px 26px rgba(0,0,0,.08)}
+.asset-picker-toggle{
+  width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;
+  border:0;background:transparent;color:var(--text);font-family:inherit;text-align:left;
+  cursor:pointer;transition:background .2s;
+}
+.asset-picker-toggle:hover{background:var(--elevated)}
+.asset-picker-toggle:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}
+.asset-picker-toggle .apt-icon{
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  border-radius:9px;background:rgba(123,154,255,.12);color:var(--blue);font-size:1rem;font-weight:700;
+}
+.asset-picker-toggle .apt-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}
+.asset-picker-toggle .apt-title{font-size:.8125rem;font-weight:600;color:var(--text)}
+.asset-picker-toggle .apt-desc{font-size:.6875rem;font-weight:400;color:var(--muted)}
+.asset-picker-toggle .apt-status{
+  max-width:180px;padding:4px 9px;border-radius:999px;background:var(--elevated);
+  color:var(--text2);font-size:.625rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.asset-picker-toggle .apt-arrow{font-size:.9rem;color:var(--muted);transition:transform .25s;line-height:1}
+.asset-picker-section.is-open .apt-arrow{transform:rotate(180deg)}
+.asset-picker-body{display:none;padding:12px;border-top:1px solid var(--border);background:var(--bg2)}
+.asset-picker-section.is-open .asset-picker-body{display:block;animation:fadeUp .24s ease}
+.asset-picker-helper{font-size:.6875rem;color:var(--muted);margin:0 0 9px 2px}
 .asset-picker{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));
-  gap:8px;max-height:320px;overflow-y:auto;padding:8px;
-  border:1px solid var(--border);border-radius:12px;background:var(--bg2);
+  gap:8px;max-height:250px;overflow-y:auto;padding:2px 5px 2px 2px;
+  border:0;border-radius:10px;background:transparent;
 }
 .asset-picker .ap-item{
   position:relative;cursor:pointer;border-radius:8px;overflow:hidden;
   border:2px solid transparent;transition:.2s;background:var(--surface);
+  padding:0;color:inherit;font-family:inherit;text-align:inherit;
 }
 .asset-picker .ap-item:hover{border-color:rgba(255,255,255,.08);transform:scale(1.04)}
 .asset-picker .ap-item.picked{border-color:var(--blue);box-shadow:0 0 0 2px rgba(123,154,255,.2)}
@@ -446,26 +466,24 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
   border-radius:50%;background:var(--blue);box-shadow:0 0 4px rgba(123,154,255,.4);
 }
 .selected-asset-bar{
-  display:flex;align-items:center;gap:16px;padding:14px 18px;
-  border:1px solid rgba(216,171,72,.2);border-radius:14px;
-  background:linear-gradient(135deg,rgba(216,171,72,.06) 0%,rgba(216,171,72,.02) 100%);
-  margin-top:12px;position:relative;overflow:hidden;
+  display:flex;align-items:center;gap:11px;padding:9px 10px;
+  border-top:1px solid var(--border);background:linear-gradient(135deg,rgba(123,154,255,.07),transparent);
+  position:relative;overflow:hidden;
 }
 .selected-asset-bar::before{
-  content:"";position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(216,171,72,.3),transparent);
+  content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--blue);
 }
 .selected-asset-bar .sab-thumb-wrap{
   position:relative;flex-shrink:0;
-  width:64px;height:64px;border-radius:12px;
-  background:var(--elevated);border:1px solid rgba(216,171,72,.15);
+  width:48px;height:48px;border-radius:10px;
+  background:var(--elevated);border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
 }
 .selected-asset-bar .sab-thumb-wrap::after{
   content:"";position:absolute;inset:0;
   border-radius:12px;
-  box-shadow:inset 0 0 12px rgba(216,171,72,.06);
+  box-shadow:inset 0 0 10px rgba(123,154,255,.06);
   pointer-events:none;
 }
 .selected-asset-bar .sab-thumb-wrap img{
@@ -475,15 +493,15 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
 .selected-asset-bar .sab-top{display:flex;align-items:center;gap:8px}
 .selected-asset-bar .sab-tag{
   font-size:.5625rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-  color:var(--gold);background:rgba(216,171,72,.1);
-  padding:3px 8px;border-radius:6px;border:1px solid rgba(216,171,72,.15);
+  color:var(--blue);background:rgba(123,154,255,.1);
+  padding:3px 8px;border-radius:6px;border:1px solid rgba(123,154,255,.16);
   white-space:nowrap;
 }
 .selected-asset-bar .sab-name{
   font-size:.8125rem;font-weight:600;color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.selected-asset-bar .sab-hint{font-size:.6875rem;color:var(--text2);line-height:1.4}
+.selected-asset-bar .sab-hint{font-size:.6875rem;color:var(--text2);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .selected-asset-bar .sab-prompt-preview{
   font-size:.625rem;color:var(--muted);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -496,8 +514,43 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
   border-radius:8px;cursor:pointer;color:var(--muted);
   font-size:.875rem;transition:.25s;
 }
+.selected-asset-bar .sab-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.selected-asset-bar .sab-ref-toggle{
+  height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 10px;
+  border:1px solid var(--border);border-radius:8px;background:var(--elevated);color:var(--text2);
+  font-family:inherit;font-size:.6875rem;font-weight:500;cursor:pointer;transition:.2s;
+}
+.selected-asset-bar .sab-ref-toggle:hover{border-color:rgba(123,154,255,.3);color:var(--text)}
+.selected-asset-bar .sab-ref-toggle.active{
+  color:var(--green);background:rgba(92,224,160,.1);border-color:rgba(92,224,160,.24);
+}
+.selected-asset-bar .srt-switch{
+  width:27px;height:16px;display:inline-flex;align-items:center;padding:2px;border-radius:999px;
+  background:var(--muted);transition:.22s;flex-shrink:0;
+}
+.selected-asset-bar .srt-switch::after{
+  content:"";width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.24);
+  transition:transform .22s;
+}
+.selected-asset-bar .sab-ref-toggle.active .srt-switch{background:var(--green)}
+.selected-asset-bar .sab-ref-toggle.active .srt-switch::after{transform:translateX(11px)}
+.selected-asset-bar .sab-change{
+  height:32px;padding:0 11px;border:1px solid rgba(123,154,255,.2);border-radius:8px;
+  background:rgba(123,154,255,.1);color:var(--blue);font-family:inherit;font-size:.6875rem;
+  font-weight:600;cursor:pointer;transition:.2s;
+}
+.selected-asset-bar .sab-change:hover{background:rgba(123,154,255,.18);border-color:rgba(123,154,255,.36)}
 .selected-asset-bar .sab-clear:hover{
   background:rgba(255,123,123,.1);border-color:rgba(255,123,123,.2);color:var(--red);
+}
+@media(max-width:640px){
+  .asset-picker-toggle .apt-desc{display:none}
+  .asset-picker-toggle .apt-status{max-width:92px}
+  .asset-picker{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));max-height:230px}
+  .selected-asset-bar .sab-hint{display:none}
+  .selected-asset-bar .srt-label{display:none}
+  .selected-asset-bar .sab-ref-toggle{padding:0 7px}
+  .selected-asset-bar .sab-change{padding:0 9px}
 }
 
 /* ═══ Batch Upload Items ═══ */
@@ -518,6 +571,8 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.14)}
 </style>
+<link rel="stylesheet" href="assets/theme.css"/>
+<script src="assets/theme.js" defer></script>
 </head>
 <body>
 
@@ -616,11 +671,12 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
         <div class="field">
           <label>AI 服务商</label>
           <select id="aiProvider">
-            <option value="jimeng">即梦 AI（火山引擎 · 推荐）</option>
-            <option value="gemini">Google Gemini / Nano Banana（AI Studio Key）</option>
-            <option value="qwen">通义千问 · 万相（阿里云 DashScope）</option>
-            <option value="openai">OpenAI（DALL·E 3 / gpt-image-1）</option>
+            <option value="seedream">火山方舟 · Seedream（最新）</option>
+            <option value="gemini">Google Gemini · Nano Banana</option>
+            <option value="qwen">阿里云百炼 · 万相 / Qwen Image</option>
+            <option value="openai">OpenAI · GPT Image</option>
             <option value="openai-compat">OpenAI 兼容接口（中转/自建）</option>
+            <option value="jimeng">即梦旧版视觉 API（兼容）</option>
           </select>
         </div>
         <div class="field">
@@ -640,6 +696,11 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
           <option value="intl">海外新加坡（dashscope-intl.aliyuncs.com）</option>
         </select>
         <p class="hint">中国大陆和海外的 API Key 不通用，请按申请地域选择</p>
+      </div>
+      <div class="field" id="fieldWorkspace" style="display:none">
+        <label>业务空间 ID <span style="color:var(--muted);font-weight:400;font-size:.7rem">（可选，万相 2.7 推荐填写）</span></label>
+        <input type="text" id="aiWorkspace" placeholder="ws-xxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
+        <p class="hint">填写后使用百炼业务空间专属域名；不填则使用 DashScope 兼容域名</p>
       </div>
       <div class="field" id="fieldSingleKey">
         <label>API Key</label>
@@ -689,10 +750,21 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
     <h2>提示词构建器 <span class="badge">你的描述习惯</span></h2>
     <p class="hint" style="margin:-8px 0 12px 0">从素材库选图自动填入 prompt，或用下方字段手动构建。主描述 = 个数 + 风格 + 颜色 + 主体物 + 元素位置；附加描述 = 各元素之间的关系与细节。</p>
 
-    <div class="asset-picker-section">
-      <label style="display:block;font-size:.75rem;color:var(--text2);margin-bottom:8px;font-weight:500;letter-spacing:.2px">从素材库选图 <span style="color:var(--muted);font-weight:400">— 点击缩略图自动填入 Prompt，可修改后生成新图</span></label>
-      <div class="asset-picker" id="assetPicker"></div>
-      <div id="selectedAssetBar" style="display:none"></div>
+    <div class="asset-picker-section" id="assetPickerSection">
+      <button class="asset-picker-toggle" id="assetPickerToggle" type="button" aria-expanded="false" aria-controls="assetPickerBody" onclick="toggleAssetPicker()">
+        <span class="apt-icon" aria-hidden="true">▦</span>
+        <span class="apt-copy">
+          <span class="apt-title">素材辅助</span>
+          <span class="apt-desc">可选 · 填入 Prompt，也可作为生成参考图</span>
+        </span>
+        <span class="apt-status" id="assetPickerStatus">未选择</span>
+        <span class="apt-arrow" aria-hidden="true">⌄</span>
+      </button>
+      <div class="asset-picker-body" id="assetPickerBody">
+        <p class="asset-picker-helper">选择素材后会填入 Prompt；如需让 AI 参考原图风格，可在选中摘要中开启对应开关</p>
+        <div class="asset-picker" id="assetPicker"></div>
+      </div>
+      <div class="selected-asset-bar" id="selectedAssetBar" style="display:none"></div>
     </div>
 
     <div class="sep" style="margin:12px 0"></div>
@@ -743,12 +815,6 @@ header p{font-size:.75rem;color:var(--text2);margin-top:3px;letter-spacing:.5px;
     <div class="field">
       <label>完整提示词预览（自动拼接，也可直接编辑）</label>
       <textarea id="aiFinalPrompt" style="min-height:120px;font-size:.8125rem"></textarea>
-    </div>
-
-    <div class="field">
-      <label>参考图（可选，从素材库选取）</label>
-      <div class="ref-images" id="refImages"></div>
-      <p class="hint">选一张已有素材作为风格参考，AI 会基于该图风格生成新图（所有服务商均支持）</p>
     </div>
 
     <div class="api-row">
@@ -960,12 +1026,17 @@ function saveCurrentApiPrefs(){
   }
   prefs.endpoint=$("#aiEndpoint").value.trim();
   prefs.region=$("#aiRegion").value;
+  prefs.workspace=$("#aiWorkspace")?.value.trim()||"";
   saveApiPrefs(prefs);
 }
 function applyApiPrefs(){
   const prefs=loadApiPrefs();
   prefs.keys=prefs.keys||{};
-  if(!prefs.lastProvider) prefs.lastProvider="jimeng";
+  if(!prefs.lastProvider) prefs.lastProvider="seedream";
+  if(!prefs.catalogVersion){
+    if(prefs.lastProvider==="jimeng") prefs.lastProvider="seedream";
+    prefs.catalogVersion=2;
+  }
   if(DEFAULT_JIMENG_KEY&&!prefs.keys.jimeng) prefs.keys.jimeng=DEFAULT_JIMENG_KEY;
   saveApiPrefs(prefs);
   if(prefs.lastProvider && PROVIDER_CONFIG[prefs.lastProvider]){
@@ -984,6 +1055,7 @@ function applyApiPrefs(){
   }
   if(prefs.endpoint) $("#aiEndpoint").value=prefs.endpoint;
   if(prefs.region) $("#aiRegion").value=prefs.region;
+  if(prefs.workspace&&$("#aiWorkspace")) $("#aiWorkspace").value=prefs.workspace;
   if(k&&k.startsWith("AIzaSy")) savedGeminiKey=k;
 }
 
@@ -1285,11 +1357,26 @@ function openPromptEditor(asset){
 
 /* ══════════════════════ ASSET PICKER (BATCH TAB) ══════════════════════ */
 let pickedAsset=null;
+let assetPickerOpen=false;
+
+function setAssetPickerOpen(open){
+  assetPickerOpen=!!open;
+  const section=$("#assetPickerSection");
+  const toggle=$("#assetPickerToggle");
+  if(!section||!toggle)return;
+  section.classList.toggle("is-open",assetPickerOpen);
+  toggle.setAttribute("aria-expanded",String(assetPickerOpen));
+}
+
+function toggleAssetPicker(){setAssetPickerOpen(!assetPickerOpen)}
+
 function renderAssetPicker(){
   const c=$("#assetPicker");c.innerHTML="";
   ASSETS.forEach(a=>{
-    const d=document.createElement("div");
+    const d=document.createElement("button");
+    d.type="button";
     d.className="ap-item"+(a===pickedAsset?" picked":"");
+    d.setAttribute("aria-pressed",String(a===pickedAsset));
     const src=getAssetSrc(a);
     const hasP=!!a.prompt;
     d.innerHTML=`${hasP?'<span class="ap-has-prompt"></span>':''}<img src="${src}" alt="${a.label}" title="${a.label}\n${getAssetPrompt(a).substring(0,60)}…"/><div class="ap-label">${a.label}</div>`;
@@ -1325,7 +1412,12 @@ function parsePromptToFields(prompt){
 
 function pickAssetForPrompt(a){
   if(pickedAsset===a){pickedAsset=null}else{pickedAsset=a}
-  $$(".ap-item").forEach((el,i)=>el.classList.toggle("picked",ASSETS[i]===pickedAsset));
+  selectedRefAsset=null;
+  $$(".ap-item").forEach((el,i)=>{
+    const selected=ASSETS[i]===pickedAsset;
+    el.classList.toggle("picked",selected);
+    el.setAttribute("aria-pressed",String(selected));
+  });
   renderSelectedBar();
   if(pickedAsset){
     const p=getAssetPrompt(pickedAsset);
@@ -1338,6 +1430,7 @@ function pickAssetForPrompt(a){
     $("#aiPosition").value=f.position;
     $("#aiRelation").value=f.relation;
     toast("已加载「"+pickedAsset.label+"」的 Prompt");
+    setAssetPickerOpen(false);
     if(typeof TRACKER!=="undefined") TRACKER.log({
       type:"asset_click",
       prompt:p,
@@ -1346,34 +1439,76 @@ function pickAssetForPrompt(a){
   }
 }
 
+function togglePickedAssetReference(){
+  if(!pickedAsset)return;
+  const enable=selectedRefAsset!==pickedAsset;
+  selectedRefAsset=enable?pickedAsset:null;
+  renderSelectedBar();
+  toast(enable?"生成时将参考这张图的风格与构图":"已关闭生成参考图");
+}
+
 function renderSelectedBar(){
   const bar=$("#selectedAssetBar");
-  if(!pickedAsset){bar.style.display="none";bar.innerHTML="";return}
+  const status=$("#assetPickerStatus");
+  if(!pickedAsset){
+    bar.style.display="none";bar.innerHTML="";
+    if(status)status.textContent="未选择";
+    return;
+  }
   bar.style.display="flex";
+  const useAsReference=selectedRefAsset===pickedAsset;
+  if(status)status.textContent=pickedAsset.label+(useAsReference?" · 参考图":"");
   const src=getAssetSrc(pickedAsset);
-  const promptPreview=getAssetPrompt(pickedAsset).substring(0,80);
   bar.innerHTML=`
     <div class="sab-thumb-wrap"><img src="${src}"/></div>
     <div class="sab-body">
       <div class="sab-top">
-        <span class="sab-tag">已选中</span>
+        <span class="sab-tag">提示词来源</span>
         <span class="sab-name">${pickedAsset.label}</span>
       </div>
-      <div class="sab-hint">Prompt 已填入下方预览区，可直接编辑后生成新图</div>
-      <div class="sab-prompt-preview">${promptPreview}…</div>
+      <div class="sab-hint">${useAsReference?"Prompt 已填入 · 生成时会参考此图的风格与构图":"Prompt 已填入 · 当前不会将图片发送给生成服务"}</div>
     </div>
-    <button class="sab-clear" title="取消选择">&#x2715;</button>
+    <div class="sab-actions">
+      <button class="sab-ref-toggle${useAsReference?" active":""}" type="button" aria-pressed="${useAsReference}" title="开启后，生成时会上传这张图片作为风格与构图参考">
+        <span class="srt-switch" aria-hidden="true"></span>
+        <span class="srt-label">生成时参考此图</span>
+      </button>
+      <button class="sab-change" type="button">更换</button>
+      <button class="sab-clear" type="button" title="取消选择" aria-label="取消选择">&#x2715;</button>
+    </div>
   `;
-  bar.querySelector(".sab-clear").onclick=()=>{pickedAsset=null;$$(".ap-item").forEach(el=>el.classList.remove("picked"));renderSelectedBar()};
+  bar.querySelector(".sab-ref-toggle").onclick=togglePickedAssetReference;
+  bar.querySelector(".sab-change").onclick=()=>setAssetPickerOpen(true);
+  bar.querySelector(".sab-clear").onclick=()=>{
+    pickedAsset=null;
+    selectedRefAsset=null;
+    $$(".ap-item").forEach(el=>{el.classList.remove("picked");el.setAttribute("aria-pressed","false")});
+    renderSelectedBar();
+  };
 }
 
 /* ══════════════════════ API CONFIG ══════════════════════ */
 const PROVIDER_CONFIG={
+  "seedream":{
+    models:[
+      {value:"doubao-seedream-5-0-260128",label:"Seedream 5.0（最新旗舰，推荐）"},
+      {value:"doubao-seedream-5-0-lite-260128",label:"Seedream 5.0 Lite（快速性价比）"},
+      {value:"doubao-seedream-4-5-251128",label:"Seedream 4.5（稳定兼容）"},
+      {value:"doubao-seedream-4-0-250828",label:"Seedream 4.0（组图 / 编辑）"},
+    ],
+    sizes:[
+      {value:"2K",label:"2K（推荐）"},
+      {value:"4K",label:"4K（超清）"},
+    ],
+    qualities:[{value:"1",label:"1 张"}],
+    keyPlaceholder:"填写火山方舟 API Key",
+    keyHint:"从火山方舟控制台的 API Key 管理页获取（不是 AccessKey / SecretKey）",
+  },
   "jimeng":{
     models:[
-      {value:"jimeng_t2i_v40",label:"即梦 4.0（最新，推荐）"},
-      {value:"jimeng_t2i_v31",label:"即梦 3.1"},
-      {value:"jimeng_t2i_v30",label:"即梦 3.0"},
+      {value:"jimeng_t2i_v40",label:"即梦 4.0（旧视觉 API）"},
+      {value:"jimeng_t2i_v31",label:"即梦 3.1（旧视觉 API）"},
+      {value:"jimeng_t2i_v30",label:"即梦 3.0（旧视觉 API）"},
     ],
     sizes:[
       {value:"1024x1024",label:"1024 x 1024 正方形"},
@@ -1388,78 +1523,113 @@ const PROVIDER_CONFIG={
   },
   "gemini":{
     models:[
-      {value:"gemini-3.1-flash-image-preview",label:"Gemini 3.1 Flash Image（快速，推荐）"},
-      {value:"gemini-3-pro-image-preview",label:"Gemini 3 Pro Image（高质量）"},
-      {value:"nano-banana-pro-preview",label:"Nano Banana Pro（Gemini 原生）"},
-      {value:"gemini-2.5-flash-image",label:"Gemini 2.5 Flash Image（旧版兼容）"},
+      {value:"gemini-3.1-flash-image",label:"Nano Banana 2 · Gemini 3.1 Flash（推荐）"},
+      {value:"gemini-3.1-flash-lite-image",label:"Nano Banana 2 Lite（最快 / 低成本）"},
+      {value:"gemini-3-pro-image",label:"Nano Banana Pro · Gemini 3 Pro（专业）"},
+      {value:"gemini-2.5-flash-image",label:"Nano Banana · Gemini 2.5（旧版兼容）"},
     ],
     sizes:[
       {value:"1:1",label:"1:1 正方形"},
-      {value:"16:9",label:"16:9 横版"},
-      {value:"9:16",label:"9:16 竖版"},
+      {value:"3:2",label:"3:2 横版"},
+      {value:"2:3",label:"2:3 竖版"},
       {value:"4:3",label:"4:3"},
       {value:"3:4",label:"3:4"},
+      {value:"4:5",label:"4:5"},
+      {value:"5:4",label:"5:4"},
+      {value:"16:9",label:"16:9 横版"},
+      {value:"9:16",label:"9:16 竖版"},
+      {value:"21:9",label:"21:9 超宽"},
     ],
     qualities:[
       {value:"1K",label:"1K（标准）"},
       {value:"2K",label:"2K（高清）"},
       {value:"4K",label:"4K（超清）"},
     ],
+    modelSettings:{
+      "gemini-3.1-flash-image":{qualities:[{value:"1K",label:"1K（标准）"},{value:"2K",label:"2K（高清）"},{value:"4K",label:"4K（超清）"},{value:"512",label:"512（快速草图）"}]},
+      "gemini-3.1-flash-lite-image":{qualities:[{value:"1K",label:"1K（该模型仅支持 1K）"}]},
+      "gemini-3-pro-image":{qualities:[{value:"1K",label:"1K（标准）"},{value:"2K",label:"2K（高清）"},{value:"4K",label:"4K（超清）"}]},
+      "gemini-2.5-flash-image":{qualities:[{value:"1K",label:"1K（固定分辨率）"}]},
+    },
     keyPlaceholder:"AIzaSy...",
     keyHint:"从 Google AI Studio (aistudio.google.com) 获取 API Key，格式为 AIzaSy...",
   },
   "qwen":{
     models:[
-      {value:"qwen-image-2.0-pro",label:"qwen-image-2.0-pro（推荐，文字渲染强）"},
-      {value:"qwen-image-2.0",label:"qwen-image-2.0（快速版）"},
-      {value:"qwen-image-max",label:"qwen-image-max（真实感最强）"},
-      {value:"qwen-image-plus",label:"qwen-image-plus（多样艺术风格）"},
+      {value:"wan2.7-image-pro",label:"万相 2.7 Pro（最新，最高 4K）"},
+      {value:"wan2.7-image",label:"万相 2.7（快速）"},
+      {value:"qwen-image-2.0-pro",label:"Qwen Image 2.0 Pro（文字渲染强）"},
+      {value:"qwen-image-2.0-pro-2026-06-22",label:"Qwen Image 2.0 Pro · 2026-06-22（固定版）"},
+      {value:"qwen-image-2.0",label:"Qwen Image 2.0（快速）"},
     ],
     sizes:[
-      {value:"1024*1024",label:"1024 x 1024 正方形"},
-      {value:"1328*1328",label:"1328 x 1328 大正方形"},
-      {value:"1472*1140",label:"1472 x 1140 横版"},
-      {value:"1140*1472",label:"1140 x 1472 竖版"},
-      {value:"1664*928",label:"1664 x 928 宽横版"},
-      {value:"928*1664",label:"928 x 1664 长竖版"},
+      {value:"2K",label:"2K（推荐）"},
+      {value:"4K",label:"4K（万相 2.7 Pro 文生图）"},
     ],
-    qualities:[{value:"1",label:"1 张"},{value:"2",label:"2 张"},{value:"4",label:"4 张"}],
+    qualities:[{value:"1",label:"1 张 / 次"}],
+    modelSettings:{
+      "wan2.7-image":{sizes:[{value:"2K",label:"2K（推荐）"}]},
+      "qwen-image-2.0-pro":{sizes:[{value:"2048*2048",label:"2048 x 2048 正方形"},{value:"2688*1536",label:"2688 x 1536 横版"},{value:"1536*2688",label:"1536 x 2688 竖版"},{value:"2368*1728",label:"2368 x 1728 横版"},{value:"1728*2368",label:"1728 x 2368 竖版"}]},
+      "qwen-image-2.0-pro-2026-06-22":{sizes:[{value:"2048*2048",label:"2048 x 2048 正方形"},{value:"2688*1536",label:"2688 x 1536 横版"},{value:"1536*2688",label:"1536 x 2688 竖版"}]},
+      "qwen-image-2.0":{sizes:[{value:"2048*2048",label:"2048 x 2048 正方形"},{value:"2688*1536",label:"2688 x 1536 横版"},{value:"1536*2688",label:"1536 x 2688 竖版"}]},
+    },
     keyPlaceholder:"sk-...",
     keyHint:"从阿里云百炼平台获取 DashScope API Key",
   },
   "openai":{
     models:[
-      {value:"gpt-image-1",label:"gpt-image-1（最新）"},
-      {value:"dall-e-3",label:"dall-e-3"},
-      {value:"dall-e-2",label:"dall-e-2"},
+      {value:"gpt-image-2",label:"GPT Image 2（最新，推荐）"},
+      {value:"gpt-image-2-2026-04-21",label:"GPT Image 2 · 2026-04-21（固定版）"},
+      {value:"gpt-image-1",label:"GPT Image 1（旧版兼容）"},
+      {value:"dall-e-3",label:"DALL·E 3（旧版，不支持垫图）"},
     ],
     sizes:[
+      {value:"auto",label:"自动（推荐）"},
       {value:"1024x1024",label:"1024 x 1024 正方形"},
-      {value:"1024x1792",label:"1024 x 1792 竖版"},
-      {value:"1792x1024",label:"1792 x 1024 横版"},
+      {value:"1536x1024",label:"1536 x 1024 横版"},
+      {value:"1024x1536",label:"1024 x 1536 竖版"},
+      {value:"2048x2048",label:"2048 x 2048 正方形"},
+      {value:"2048x1152",label:"2048 x 1152 横版"},
+      {value:"3840x2160",label:"3840 x 2160 · 4K 横版"},
+      {value:"2160x3840",label:"2160 x 3840 · 4K 竖版"},
     ],
-    qualities:[{value:"high",label:"high（精细）"},{value:"medium",label:"medium（标准）"},{value:"low",label:"low（快速）"}],
+    qualities:[{value:"auto",label:"auto（推荐）"},{value:"high",label:"high（精细）"},{value:"medium",label:"medium（标准）"},{value:"low",label:"low（快速草图）"}],
+    modelSettings:{
+      "gpt-image-1":{sizes:[{value:"1024x1024",label:"1024 x 1024 正方形"},{value:"1536x1024",label:"1536 x 1024 横版"},{value:"1024x1536",label:"1024 x 1536 竖版"}]},
+      "dall-e-3":{sizes:[{value:"1024x1024",label:"1024 x 1024 正方形"},{value:"1792x1024",label:"1792 x 1024 横版"},{value:"1024x1792",label:"1024 x 1792 竖版"}],qualities:[{value:"standard",label:"standard（标准）"},{value:"hd",label:"hd（高清）"}]},
+    },
     keyPlaceholder:"sk-...",
     keyHint:"从 OpenAI Platform 获取 API Key",
   },
   "openai-compat":{
     models:[
+      {value:"gpt-image-2",label:"gpt-image-2"},
       {value:"gpt-image-1",label:"gpt-image-1"},
       {value:"dall-e-3",label:"dall-e-3"},
-      {value:"dall-e-2",label:"dall-e-2"},
     ],
     sizes:[
+      {value:"auto",label:"auto"},
       {value:"1024x1024",label:"1024 x 1024"},
-      {value:"1024x1792",label:"1024 x 1792"},
-      {value:"1792x1024",label:"1792 x 1024"},
+      {value:"1536x1024",label:"1536 x 1024"},
+      {value:"1024x1536",label:"1024 x 1536"},
+      {value:"2048x2048",label:"2048 x 2048"},
     ],
-    qualities:[{value:"high",label:"high"},{value:"medium",label:"medium"},{value:"low",label:"low"}],
+    qualities:[{value:"auto",label:"auto"},{value:"high",label:"high"},{value:"medium",label:"medium"},{value:"low",label:"low"}],
+    modelSettings:{
+      "gpt-image-1":{sizes:[{value:"1024x1024",label:"1024 x 1024"},{value:"1536x1024",label:"1536 x 1024"},{value:"1024x1536",label:"1024 x 1536"}]},
+      "dall-e-3":{sizes:[{value:"1024x1024",label:"1024 x 1024"},{value:"1792x1024",label:"1792 x 1024"},{value:"1024x1792",label:"1024 x 1792"}],qualities:[{value:"standard",label:"standard"},{value:"hd",label:"hd"}]},
+    },
     keyPlaceholder:"sk-...",
     keyHint:"填写兼容接口的 Key",
   },
 };
 
 const KEY_HELP={
+  "seedream":`<b>火山方舟 · Seedream 5.0</b><br>
+    1. 打开 <a href="https://console.volcengine.com/ark/region:ark+cn-beijing/apikey" target="_blank" style="color:var(--gold-l)">火山方舟 → API Key 管理</a><br>
+    2. 创建并复制 <b>Ark API Key</b>，粘贴到上方（不需要 AccessKey / SecretKey）<br>
+    3. 在「开通管理」中确认已开通 Seedream 5.0 / 5.0 Lite<br>
+    <span style="color:var(--muted)">页面调用新版方舟 <code>/api/v3/images/generations</code> 接口，支持文生图和参考图生图。</span>`,
   "jimeng":`<b>即梦 AI（火山引擎）—— 必须做两件事</b><br><br>
     <b>第一步：拿到 Key（创建密钥）</b><br>
     1. 登录 <a href="https://console.volcengine.com/iam/keymanage/" target="_blank" style="color:var(--gold-l)">火山引擎 → 访问控制 → API 访问密钥</a><br>
@@ -1475,16 +1645,16 @@ const KEY_HELP={
     2. 点击「Create API key」，会得到一段以 <code>AIzaSy</code> 开头的字符串<br>
     3. 复制粘贴到上方 API Key 框即可<br>
     <span style="color:var(--muted)">⚠ 需要能访问 Google 服务，国内网络可能不通。免费额度有限，超过会返回 429。</span>`,
-  "qwen":`<b>通义千问 · 万相（阿里云 DashScope）</b><br>
+  "qwen":`<b>阿里云百炼 · 万相 / Qwen Image</b><br>
     1. 登录 <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" style="color:var(--gold-l)">阿里云 DashScope → API-KEY 管理</a><br>
     2. 点击「创建新的 API-KEY」，得到一段以 <code>sk-</code> 开头的字符串<br>
-    3. 粘贴到上方 API Key 框<br>
-    <span style="color:var(--muted)">⚠ 大陆和海外区域的 Key 不通用，记得在上面"地域"里选对。</span>`,
-  "openai":`<b>OpenAI（DALL·E 3 / gpt-image-1）</b><br>
+    3. 使用万相 2.7 时，建议在上方填写对应的「业务空间 ID」<br>
+    <span style="color:var(--muted)">⚠ 大陆和海外区域的 Key 不通用，记得在上面「地域」里选对。</span>`,
+  "openai":`<b>OpenAI · GPT Image 2</b><br>
     1. 登录 <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--gold-l)">OpenAI Platform → API keys</a><br>
     2. 点击「Create new secret key」，得到一段以 <code>sk-</code> 开头的字符串<br>
     3. 粘贴到上方 API Key 框<br>
-    <span style="color:var(--muted)">⚠ 国内网络需走代理才能访问。账号需要有付费余额。</span>`,
+    <span style="color:var(--muted)">⚠ GPT Image 模型可能要求组织验证；国内网络通常需要代理。选择参考图时会自动切换到 <code>/images/edits</code>。</span>`,
   "openai-compat":`<b>OpenAI 兼容接口（中转/自建）</b><br>
     1. 把代理服务方提供给你的 Key 粘到上方<br>
     2. 在「自定义 API 地址」里填代理域名（通常长这样：<code>https://xxx.com/v1/images/generations</code>）<br>
@@ -1497,9 +1667,9 @@ function syncProviderUI(){
   const cfg=PROVIDER_CONFIG[pv];
   $("#fieldCustomEndpoint").style.display=pv==="openai-compat"?"block":"none";
   $("#fieldRegion").style.display=pv==="qwen"?"block":"none";
+  $("#fieldWorkspace").style.display=pv==="qwen"?"block":"none";
   fillSelect("#aiModel",cfg.models);
-  fillSelect("#aiSize",cfg.sizes);
-  fillSelect("#aiQuality",cfg.qualities);
+  syncModelUI();
 
   const isJimeng=pv==="jimeng";
   $("#fieldSingleKey").style.display=isJimeng?"none":"block";
@@ -1508,6 +1678,18 @@ function syncProviderUI(){
   $("#keyHint").textContent=cfg.keyHint;
 
   $("#keyHelpBody").innerHTML=KEY_HELP[pv]||"";
+}
+function syncModelUI(){
+  const pv=$("#aiProvider").value;
+  const cfg=PROVIDER_CONFIG[pv];
+  if(!cfg) return;
+  const modelCfg=cfg.modelSettings?.[$("#aiModel").value]||{};
+  const oldSize=$("#aiSize").value;
+  const oldQuality=$("#aiQuality").value;
+  fillSelect("#aiSize",modelCfg.sizes||cfg.sizes);
+  fillSelect("#aiQuality",modelCfg.qualities||cfg.qualities);
+  if([...$("#aiSize").options].some(o=>o.value===oldSize)) $("#aiSize").value=oldSize;
+  if([...$("#aiQuality").options].some(o=>o.value===oldQuality)) $("#aiQuality").value=oldQuality;
 }
 
 function jimengComposeKey(){
@@ -1538,11 +1720,18 @@ $("#aiProvider").onchange=()=>{
   const pv=$("#aiProvider").value;
   const saved=(prefs2.keys&&prefs2.keys[pv])||"";
   $("#aiKey").value=saved;
+  if(pv==="jimeng"){
+    const {ak,sk}=jimengSplitKey(saved);
+    $("#aiAccessKey").value=ak;
+    $("#aiSecretKey").value=sk;
+  }
 };
+$("#aiModel").onchange=syncModelUI;
 $("#aiKey").oninput=()=>{checkSaveGeminiKey();saveCurrentApiPrefs()};
 $("#aiKey").onchange=()=>{checkSaveGeminiKey();saveCurrentApiPrefs()};
 $("#aiEndpoint").oninput=saveCurrentApiPrefs;
 $("#aiRegion").onchange=saveCurrentApiPrefs;
+$("#aiWorkspace").oninput=saveCurrentApiPrefs;
 function checkSaveGeminiKey(){
   const k=$("#aiKey").value.trim();
   if(k.startsWith("AIzaSy"))savedGeminiKey=k;
@@ -1589,7 +1778,9 @@ function validateKeyFormat(pv){
   }
   const k=$("#aiKey").value.trim();
   if(!k) return "请先填写 API Key";
-  if(pv==="gemini"){
+  if(pv==="seedream"){
+    if(k.length<20) return "火山方舟 API Key 看起来不完整，请从方舟 API Key 管理页重新复制";
+  }else if(pv==="gemini"){
     if(!k.startsWith("AIzaSy")) return "Gemini Key 通常以 AIzaSy 开头，你这个不像。请到 AI Studio 重新复制";
     if(k.length<35) return "Gemini Key 太短了（一般 39 位），看起来不完整";
   }else if(pv==="qwen"){
@@ -1598,6 +1789,17 @@ function validateKeyFormat(pv){
     if(!k.startsWith("sk-")) return "OpenAI Key 通常以 sk- 开头";
   }
   return "";
+}
+
+function getQwenEndpoint(){
+  const workspace=($("#aiWorkspace")?.value||"").trim();
+  const isIntl=$("#aiRegion").value==="intl";
+  if(workspace){
+    const regionHost=isIntl?"ap-southeast-1.maas.aliyuncs.com":"cn-beijing.maas.aliyuncs.com";
+    return "https://"+workspace+"."+regionHost+"/api/v1/services/aigc/multimodal-generation/generation";
+  }
+  const host=isIntl?"dashscope-intl.aliyuncs.com":"dashscope.aliyuncs.com";
+  return "https://"+host+"/api/v1/services/aigc/multimodal-generation/generation";
 }
 
 function showApiDetail(kind,html){
@@ -1675,11 +1877,12 @@ $("#btnTestApi").onclick=async()=>{
         showApiDetail("err",detail);
         toast("即梦连接失败");return;
       }
+    }else if(pv==="seedream"){
+      r=await fetch("https://ark.cn-beijing.volces.com/api/v3/models",{headers:{"Authorization":"Bearer "+key}});
     }else if(pv==="gemini"){
-      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models?key="+encodeURIComponent(key));
+      r=await fetch("https://generativelanguage.googleapis.com/v1/models",{headers:{"x-goog-api-key":key}});
     }else if(pv==="qwen"){
-      const host=$("#aiRegion").value==="intl"?"dashscope-intl.aliyuncs.com":"dashscope.aliyuncs.com";
-      r=await fetch("https://"+host+"/api/v1/services/aigc/multimodal-generation/generation",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:$("#aiModel").value,input:{messages:[{role:"user",content:[{text:"a golden coin, 3D clay style, white background"}]}]},parameters:{size:"1024*1024",n:1}})});
+      r=await fetch(getQwenEndpoint(),{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:$("#aiModel").value,input:{messages:[{role:"user",content:[{text:"a golden coin, 3D clay style, white background"}]}]},parameters:{size:$("#aiModel").value.startsWith("wan2.7")?"2K":"2048*2048",n:1,watermark:false}})});
     }else{
       const ep=pv==="openai-compat"&&$("#aiEndpoint").value.trim()?$("#aiEndpoint").value.trim().replace(/\/images\/generations.*/,""):("https://api.openai.com/v1");
       r=await fetch(ep+"/models",{headers:{"Authorization":"Bearer "+key}});
@@ -1695,7 +1898,7 @@ $("#btnTestApi").onclick=async()=>{
       let detail="";
       if(r.status===401||r.status===403||/invalid.*key|unauth/i.test(msg)){
         msg="Key 无效或已失效";
-        detail="<b>🔑 Key 无效</b><br>请到对应平台重新创建一个 Key 后再试。<br>"+(pv==="gemini"?'<a href="https://aistudio.google.com/apikey" target="_blank" style="color:#F0CC6A;text-decoration:underline">Google AI Studio</a>':pv==="qwen"?'<a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" style="color:#F0CC6A;text-decoration:underline">阿里云 DashScope</a>':pv==="openai"?'<a href="https://platform.openai.com/api-keys" target="_blank" style="color:#F0CC6A;text-decoration:underline">OpenAI Platform</a>':'');
+        detail="<b>🔑 Key 无效</b><br>请到对应平台重新创建一个 Key 后再试。<br>"+(pv==="seedream"?'<a href="https://console.volcengine.com/ark/region:ark+cn-beijing/apikey" target="_blank" style="color:#F0CC6A;text-decoration:underline">火山方舟 API Key</a>':pv==="gemini"?'<a href="https://aistudio.google.com/apikey" target="_blank" style="color:#F0CC6A;text-decoration:underline">Google AI Studio</a>':pv==="qwen"?'<a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" style="color:#F0CC6A;text-decoration:underline">阿里云 DashScope</a>':pv==="openai"?'<a href="https://platform.openai.com/api-keys" target="_blank" style="color:#F0CC6A;text-decoration:underline">OpenAI Platform</a>':'');
       }else if(r.status===429){
         msg="额度用完或调用太频繁";
         detail="<b>💸 调用频率超限</b><br>免费额度可能已用完，或调用太密集。等几分钟再试，或开通付费。";
@@ -1712,7 +1915,7 @@ $("#btnTestApi").onclick=async()=>{
     if(/Failed to fetch|NetworkError|TypeError/i.test(msg)){
       if(pv==="gemini"||pv==="openai"){
         msg="无法访问海外服务";
-        detail="<b>🌐 网络问题</b><br>Gemini / OpenAI 都是海外服务，国内网络访问不到。<br>一般需要走代理（科学上网）。或考虑改用：<br>• <b>即梦 AI</b>（国内推荐，但要先在火山引擎控制台开通服务）<br>• <b>通义千问</b>（阿里云，国内可直连）";
+        detail="<b>🌐 网络问题</b><br>Gemini / OpenAI 都是海外服务，国内网络可能无法直接访问。<br>一般需要配置可用网络，或改用：<br>• <b>火山方舟 Seedream</b>（国内可直连）<br>• <b>阿里云百炼万相</b>（国内可直连）";
       }else{
         msg="网络错误";
         detail="<b>🌐 网络错误</b><br>可能是防火墙拦截、服务暂时不可用，或浏览器扩展（如广告拦截）干扰。<br>原始错误："+e.message;
@@ -1769,21 +1972,6 @@ $("#btnBuildPrompt").onclick=buildPrompt;
   const el=document.getElementById(id);
   if(el) el.oninput=buildPrompt;
 });
-
-/* Reference images */
-function renderRefImages(){
-  const c=$("#refImages");c.innerHTML="";
-  ASSETS.forEach(a=>{
-    const img=document.createElement("img");img.className="ref-thumb";img.src=getAssetSrc(a);img.title=a.label;
-    if(a===selectedRefAsset)img.classList.add("selected");
-    img.onclick=()=>{
-      $$(".ref-thumb").forEach(x=>x.classList.remove("selected"));
-      if(selectedRefAsset===a){selectedRefAsset=null}
-      else{selectedRefAsset=a;img.classList.add("selected")}
-    };
-    c.appendChild(img);
-  });
-}
 
 /* ══════════════════════ AI GENERATION ══════════════════════ */
 async function fileToBase64(path){
@@ -1854,6 +2042,14 @@ function withTimeout(promise,ms){
   ]);
 }
 
+function base64ToBlob(base64,mimeType="image/png"){
+  const clean=(base64||"").includes(",")?(base64||"").split(",").pop():base64;
+  const binary=atob(clean||"");
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:mimeType});
+}
+
 async function callImageApi(prompt,refBase64){
   const key=$("#aiKey").value.trim();
   if(!key) throw new Error("请先填写 API Key");
@@ -1861,6 +2057,22 @@ async function callImageApi(prompt,refBase64){
   const model=$("#aiModel").value;
   const size=$("#aiSize").value;
   const quality=$("#aiQuality").value;
+
+  /* ── 火山方舟 · Seedream ── */
+  if(pv==="seedream"){
+    const body={model,prompt,size,response_format:"b64_json",watermark:false,sequential_image_generation:"disabled"};
+    if(refBase64) body.image=["data:image/png;base64,"+refBase64];
+    const resp=await withTimeout(fetch("https://ark.cn-beijing.volces.com/api/v3/images/generations",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body:JSON.stringify(body)
+    }),180000);
+    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||e.message||"HTTP "+resp.status)}
+    const json=await resp.json();
+    if(json.data?.[0]?.b64_json) return "data:image/png;base64,"+json.data[0].b64_json;
+    if(json.data?.[0]?.url) return json.data[0].url;
+    throw new Error("Seedream 未返回图片数据: "+JSON.stringify(json).substring(0,200));
+  }
 
   /* ── 即梦 AI ── */
   if(pv==="jimeng"){
@@ -1879,20 +2091,17 @@ async function callImageApi(prompt,refBase64){
 
   /* ── Google Gemini / Nano Banana ── */
   if(pv==="gemini"){
-    const endpoint="https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(key);
+    const endpoint="https://generativelanguage.googleapis.com/v1/models/"+model+":generateContent";
     const contentParts=[];
     if(refBase64) contentParts.push({inlineData:{mimeType:"image/png",data:refBase64}});
     contentParts.push({text:refBase64?("请参考这张图片的风格和质感，生成新图："+prompt):prompt});
-    const body={
-      contents:[{parts:contentParts}],
-      generationConfig:{
-        responseModalities:["IMAGE"],
-        imageConfig:{aspectRatio:size,imageSize:quality}
-      }
-    };
+    const generationConfig={responseModalities:["TEXT","IMAGE"]};
+    if(model.startsWith("gemini-3")) generationConfig.responseFormat={image:{aspectRatio:size,imageSize:quality}};
+    else generationConfig.imageConfig={aspectRatio:size};
+    const body={contents:[{parts:contentParts}],generationConfig};
     const resp=await withTimeout(fetch(endpoint,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json","x-goog-api-key":key},
       body:JSON.stringify(body)
     }),120000);
     if(!resp.ok){
@@ -1915,16 +2124,19 @@ async function callImageApi(prompt,refBase64){
 
   /* ── 通义千问 · 万相 ── */
   if(pv==="qwen"){
-    const host=$("#aiRegion").value==="intl"?"dashscope-intl.aliyuncs.com":"dashscope.aliyuncs.com";
-    const endpoint="https://"+host+"/api/v1/services/aigc/multimodal-generation/generation";
+    const endpoint=getQwenEndpoint();
     const n=parseInt(quality)||1;
     const msgContent=[];
     if(refBase64) msgContent.push({image:"data:image/png;base64,"+refBase64});
     msgContent.push({text:refBase64?("请参考这张图片的风格生成新图："+prompt):prompt});
+    const effectiveSize=refBase64&&model==="wan2.7-image-pro"&&size==="4K"?"2K":size;
+    const parameters={size:effectiveSize,n,watermark:false};
+    if(model.startsWith("wan2.7")) parameters.thinking_mode=true;
+    else parameters.prompt_extend=true;
     const body={
       model,
       input:{messages:[{role:"user",content:msgContent}]},
-      parameters:{size,n,watermark:false,prompt_extend:true}
+      parameters
     };
     const resp=await withTimeout(fetch(endpoint,{
       method:"POST",
@@ -1944,20 +2156,30 @@ async function callImageApi(prompt,refBase64){
   }
 
   /* ── OpenAI / 兼容接口 ── */
-  let endpoint;
+  let generationEndpoint;
   if(pv==="openai-compat"&&$("#aiEndpoint").value.trim()){
-    endpoint=$("#aiEndpoint").value.trim();
+    const custom=$("#aiEndpoint").value.trim().replace(/\/$/,"");
+    generationEndpoint=/\/images\/generations$/.test(custom)?custom:custom+"/images/generations";
   }else{
-    endpoint="https://api.openai.com/v1/images/generations";
+    generationEndpoint="https://api.openai.com/v1/images/generations";
   }
-  const body={model,prompt,n:1,size,quality,response_format:"b64_json"};
-  if(refBase64) body.image=refBase64;
-
-  const resp=await withTimeout(fetch(endpoint,{
-    method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-    body:JSON.stringify(body)
-  }),120000);
+  const isGptImage=model.startsWith("gpt-image");
+  if(refBase64&&!isGptImage) throw new Error("当前模型不支持参考图，请改用 GPT Image 2 / GPT Image 1，或关闭“生成时参考此图”");
+  let resp;
+  if(refBase64){
+    const editEndpoint=generationEndpoint.replace(/\/images\/generations$/, "/images/edits");
+    const form=new FormData();
+    form.append("model",model);
+    form.append("prompt",prompt);
+    form.append("image[]",base64ToBlob(refBase64),"reference.png");
+    if(size) form.append("size",size);
+    if(quality) form.append("quality",quality);
+    resp=await withTimeout(fetch(editEndpoint,{method:"POST",headers:{"Authorization":"Bearer "+key},body:form}),180000);
+  }else{
+    const body={model,prompt,n:1,size,quality};
+    if(!isGptImage) body.response_format="b64_json";
+    resp=await withTimeout(fetch(generationEndpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify(body)}),180000);
+  }
   if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||"HTTP "+resp.status)}
   const json=await resp.json();
   if(json.data?.[0]?.b64_json) return "data:image/png;base64,"+json.data[0].b64_json;
@@ -2295,15 +2517,15 @@ const TRACKER=(function(){
     const opts=all.map(v=>`<option value="${v}">${v}</option>`).join("");
     return `
       <div style="margin-bottom:14px;text-align:left">
-        <label style="display:block;font-size:.72rem;color:#8E8A9C;margin-bottom:6px;letter-spacing:.4px">${label}</label>
+        <label style="display:block;font-size:.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:.4px">${label}</label>
         <div style="display:flex;gap:8px">
-          <select class="tk-select" style="flex:1;padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#1E1E28;color:#EDE9E0;font-size:.85rem;font-family:inherit;outline:none;cursor:pointer">
+          <select class="tk-select" style="flex:1;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;font-family:inherit;outline:none;cursor:pointer">
             <option value="">${placeholder}</option>
             ${opts}
             <option value="__custom__">+ 自定义…</option>
           </select>
-          <input class="tk-custom" type="text" maxlength="20" placeholder="输入新${label}" style="display:none;flex:1;padding:11px 12px;border:1px solid rgba(216,171,72,.4);border-radius:10px;background:#1E1E28;color:#EDE9E0;font-size:.85rem;font-family:inherit;outline:none"/>
-          <button class="tk-back" type="button" style="display:none;padding:0 10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#13131A;color:#8E8A9C;cursor:pointer;font-family:inherit;font-size:.75rem">↶</button>
+          <input class="tk-custom" type="text" maxlength="20" placeholder="输入新${label}" style="display:none;flex:1;padding:11px 12px;border:1px solid var(--border-active);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;font-family:inherit;outline:none"/>
+          <button class="tk-back" type="button" style="display:none;padding:0 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;font-size:.75rem">↶</button>
         </div>
       </div>
     `;
@@ -2314,26 +2536,26 @@ const TRACKER=(function(){
       if(erp&&role&&business)return resolve();
 
       const ov=document.createElement("div");
-      ov.style.cssText="position:fixed;inset:0;z-index:999999;background:rgba(8,8,12,.88);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s";
+      ov.style.cssText="position:fixed;inset:0;z-index:999999;background:var(--onboarding-backdrop);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s";
       const box=document.createElement("div");
-      box.style.cssText="background:#17171F;border:1px solid rgba(216,171,72,.22);border-radius:22px;padding:32px 30px 28px;width:100%;max-width:460px;box-shadow:0 20px 64px rgba(0,0,0,.7);color:#EDE9E0;font-family:Outfit,'PingFang SC',sans-serif";
+      box.style.cssText="background:var(--surface);border:1px solid var(--border-active);border-radius:22px;padding:32px 30px 28px;width:100%;max-width:460px;box-shadow:var(--onboarding-shadow);color:var(--text);font-family:Outfit,'PingFang SC',sans-serif";
       box.innerHTML=`
         <div style="text-align:center;margin-bottom:22px">
           <div style="font-size:1.9rem;margin-bottom:4px">👋</div>
-          <h2 style="color:#F0CC6A;font-size:1.15rem;letter-spacing:.5px;font-weight:600;margin-bottom:6px">欢迎使用素材生成工具</h2>
-          <p style="color:#8E8A9C;font-size:.78rem;line-height:1.6">请填写以下信息，方便协作沟通和素材溯源<br/><span style="color:#5A566A;font-size:.7rem">仅本地保存，只需填一次</span></p>
+          <h2 style="color:var(--gold-l);font-size:1.15rem;letter-spacing:.5px;font-weight:600;margin-bottom:6px">欢迎使用素材生成工具</h2>
+          <p style="color:var(--text2);font-size:.78rem;line-height:1.6">请填写以下信息，方便协作沟通和素材溯源<br/><span style="color:var(--muted);font-size:.7rem">仅本地保存，只需填一次</span></p>
         </div>
 
         <div id="tkErpField" style="margin-bottom:14px;text-align:left">
-          <label style="display:block;font-size:.72rem;color:#8E8A9C;margin-bottom:6px;letter-spacing:.4px">ERP（员工号）</label>
-          <input id="tkErpInput" type="text" placeholder="例如：zhangsan01" maxlength="32" style="width:100%;padding:11px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:#1E1E28;color:#EDE9E0;font-size:.85rem;font-family:inherit;outline:none;transition:.25s"/>
+          <label style="display:block;font-size:.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:.4px">ERP（员工号）</label>
+          <input id="tkErpInput" type="text" placeholder="例如：zhangsan01" maxlength="32" style="width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;font-family:inherit;outline:none;transition:.25s"/>
         </div>
 
         <div id="tkRoleField">${buildSelectGroup("角色",DEFAULT_ROLES,loadCustomList(CUSTOM_ROLES_KEY),"请选择角色")}</div>
         <div id="tkBizField">${buildSelectGroup("业务线",DEFAULT_BIZ,loadCustomList(CUSTOM_BIZ_KEY),"请选择业务线")}</div>
 
         <button id="tkProfileConfirm" type="button" style="margin-top:8px;width:100%;padding:13px;border:none;border-radius:11px;background:linear-gradient(135deg,#D8AB48,#C89530);color:#0B0B11;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;letter-spacing:.5px">开始使用</button>
-        <p id="tkProfileErr" style="color:#FF7B7B;font-size:.72rem;margin-top:10px;text-align:center;min-height:16px"></p>
+        <p id="tkProfileErr" style="color:var(--red);font-size:.72rem;margin-top:10px;text-align:center;min-height:16px"></p>
       `;
       ov.appendChild(box);document.body.appendChild(ov);
 
@@ -2443,7 +2665,7 @@ const TRACKER=(function(){
 
 /* ══════════════════════ INIT ══════════════════════ */
 renderFilters();renderGallery("全部");renderMiniGallery();updatePreview();renderManualBatch();
-renderScenePresets();renderRefImages();renderAssetPicker();buildPrompt();renderHistory();
+renderScenePresets();renderAssetPicker();buildPrompt();renderHistory();
 if($("#aiKey").value.trim()){
   setTimeout(()=>{$("#btnTestApi").click()},350);
 }
