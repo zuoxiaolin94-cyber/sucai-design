@@ -13,6 +13,9 @@ exports.handler = async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: responseHeaders, body: "" };
   }
+  if (event.httpMethod === "GET" && event.queryStringParameters?.image) {
+    return proxyGeneratedImage(event.queryStringParameters.image);
+  }
   if (event.httpMethod !== "POST") {
     return jsonResponse(405, { error: { message: "Method not allowed" } });
   }
@@ -80,6 +83,39 @@ exports.handler = async function handler(event) {
     return jsonResponse(502, { error: { message: "暂时无法连接灵境服务" } });
   }
 };
+
+async function proxyGeneratedImage(rawUrl) {
+  let imageUrl;
+  try {
+    imageUrl = new URL(rawUrl);
+  } catch (_) {
+    return jsonResponse(400, { error: { message: "图片地址无效" } });
+  }
+  const allowedHost = imageUrl.protocol === "https:"
+    && (imageUrl.hostname.endsWith(".jdcloud-oss.com") || imageUrl.hostname === "lj-static.jdcloud.com");
+  if (!allowedHost) {
+    return jsonResponse(403, { error: { message: "不支持转发该图片地址" } });
+  }
+  try {
+    const upstream = await fetch(imageUrl.toString());
+    if (!upstream.ok) {
+      return jsonResponse(502, { error: { message: "生成图片暂时无法读取" } });
+    }
+    const bytes = Buffer.from(await upstream.arrayBuffer());
+    return {
+      statusCode: 200,
+      headers: {
+        ...responseHeaders,
+        "Content-Type": upstream.headers.get("content-type") || "image/png",
+        "Cache-Control": "private, max-age=3600",
+      },
+      isBase64Encoded: true,
+      body: bytes.toString("base64"),
+    };
+  } catch (_) {
+    return jsonResponse(502, { error: { message: "生成图片读取失败" } });
+  }
+}
 
 function jsonResponse(statusCode, value) {
   return { statusCode, headers: responseHeaders, body: JSON.stringify(value) };

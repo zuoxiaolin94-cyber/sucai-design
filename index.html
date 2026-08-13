@@ -2396,6 +2396,10 @@ function jdcloudLingjingProxyUrl(){
     :"/.netlify/functions/jdcloud-image";
 }
 
+function jdcloudLingjingImageProxyUrl(imageUrl){
+  return jdcloudLingjingProxyUrl()+"?image="+encodeURIComponent(imageUrl);
+}
+
 async function jdcloudLingjingRequest(action,payload,key=getGenerationKey()){
   const resp=await withTimeout(fetch(jdcloudLingjingProxyUrl(),{
     method:"POST",
@@ -2421,7 +2425,7 @@ async function callJdcloudLingjing(prompt,refBase64,size,quality){
     if(queried?.error) throw new Error(queried.error.message||"灵境任务查询失败");
     const task=queried?.result?.result||{};
     const image=task.taskResults?.find(item=>item?.url||item?.frameUrl);
-    if(image) return image.url||image.frameUrl;
+    if(image) return jdcloudLingjingImageProxyUrl(image.url||image.frameUrl);
     if(task.finishedTime||task.taskStatus===4){
       const reason=task.errMsg||task.error||task.taskResults?.[0]?.errorReason;
       throw new Error(reason||"灵境任务已结束，但未返回图片");
