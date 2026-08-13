@@ -855,6 +855,7 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
             <option value="gemini">Google Gemini · Nano Banana</option>
             <option value="qwen">阿里云百炼 · 万相 / Qwen Image</option>
             <option value="openai">OpenAI · GPT Image</option>
+            <option value="jdcloud-lingjing">京东云灵境 · GPT Image 2</option>
             <option value="openai-compat">OpenAI 兼容接口（中转/自建）</option>
             <option value="jimeng">即梦旧版视觉 API（兼容）</option>
           </select>
@@ -1782,6 +1783,32 @@ const PROVIDER_CONFIG={
     keyPlaceholder:"sk-...",
     keyHint:"从 OpenAI Platform 获取 API Key",
   },
+  "jdcloud-lingjing":{
+    models:[
+      {value:"gpt-image-2",label:"GPT Image 2（灵境官方接口）"},
+    ],
+    sizes:[
+      {value:"1024x1024",label:"1024 x 1024 · 1:1（1K）"},
+      {value:"1536x1024",label:"1536 x 1024 · 3:2（1K）"},
+      {value:"1024x1536",label:"1024 x 1536 · 2:3（1K）"},
+      {value:"1408x1056",label:"1408 x 1056 · 4:3（1K）"},
+      {value:"1056x1408",label:"1056 x 1408 · 3:4（1K）"},
+      {value:"1536x864",label:"1536 x 864 · 16:9（1K）"},
+      {value:"864x1536",label:"864 x 1536 · 9:16（1K）"},
+      {value:"2048x2048",label:"2048 x 2048 · 1:1（2K）"},
+      {value:"2048x1152",label:"2048 x 1152 · 16:9（2K）"},
+      {value:"1152x2048",label:"1152 x 2048 · 9:16（2K）"},
+      {value:"3840x2160",label:"3840 x 2160 · 16:9（4K）"},
+      {value:"2160x3840",label:"2160 x 3840 · 9:16（4K）"},
+    ],
+    qualities:[
+      {value:"medium",label:"标准画质（推荐）"},
+      {value:"high",label:"高画质"},
+      {value:"low",label:"低画质（快速）"},
+    ],
+    keyPlaceholder:"sk-...",
+    keyHint:"填写京东云灵境 AppKey；仅保存在当前浏览器本地",
+  },
   "openai-compat":{
     models:[
       {value:"I-A-6",label:"京东云灵境 · GPT Image 2（I-A-6）"},
@@ -1837,6 +1864,11 @@ const KEY_HELP={
     2. 点击「Create new secret key」，得到一段以 <code>sk-</code> 开头的字符串<br>
     3. 粘贴到上方 API Key 框<br>
     <span style="color:var(--muted)">⚠ GPT Image 模型可能要求组织验证；国内网络通常需要代理。选择参考图时会自动切换到 <code>/images/edits</code>。</span>`,
+  "jdcloud-lingjing":`<b>京东云灵境 · GPT Image 2</b><br>
+    1. 使用灵境平台分配的 AppKey（通常以 <code>sk-</code> 开头）<br>
+    2. 工作台通过本站受限转发接口调用官方 <code>apiId 603</code><br>
+    3. 支持 1K / 2K / 4K、多种比例以及低 / 标准 / 高画质<br>
+    <span style="color:var(--muted)">🔒 Key 只保存在当前浏览器，不会写入网页代码或部署文件。当前素材库图片是本地文件，不能直接作为灵境公网参考图。</span>`,
   "openai-compat":`<b>OpenAI 兼容接口（中转/自建）</b><br>
     1. 把代理服务方提供给你的 Key 粘到上方<br>
     2. 在「自定义 API 地址」里填代理域名（通常长这样：<code>https://xxx.com/v1/images/generations</code>）<br>
@@ -1970,6 +2002,8 @@ function validateKeyFormat(pv){
     if(!k.startsWith("sk-")) return "通义千问 Key 通常以 sk- 开头，请检查是否复制完整";
   }else if(pv==="openai"){
     if(!k.startsWith("sk-")) return "OpenAI Key 通常以 sk- 开头";
+  }else if(pv==="jdcloud-lingjing"){
+    if(!k.startsWith("sk-")) return "灵境 AppKey 通常以 sk- 开头";
   }
   return "";
 }
@@ -2060,6 +2094,18 @@ $("#btnTestApi").onclick=async()=>{
         showApiDetail("err",detail);
         toast("即梦连接失败");return;
       }
+    }else if(pv==="jdcloud-lingjing"){
+      const check=await jdcloudLingjingRequest("query",{genTaskId:"codex-connection-check"},key);
+      const code=check?.error?.code;
+      if(code===21||/task_not_exist/i.test(check?.error?.message||"")){
+        label.innerHTML='<span class="status-dot ok"></span>✓ 连接成功（灵境）';
+        showApiDetail("ok","<b>✓ AppKey 有效，GPT Image 2 服务已连接</b><br>密钥已保存在当前浏览器本地，可以开始生成图片了。");
+        toast("灵境 GPT Image 2 连接正常");return;
+      }
+      if(check?.error) throw new Error(check.error.message||("灵境错误码 "+code));
+      label.innerHTML='<span class="status-dot ok"></span>✓ 连接成功（灵境）';
+      showApiDetail("ok","<b>✓ AppKey 有效，GPT Image 2 服务已连接</b>");
+      toast("灵境 GPT Image 2 连接正常");return;
     }else if(pv==="seedream"){
       r=await fetch("https://ark.cn-beijing.volces.com/api/v3/models",{headers:{"Authorization":"Bearer "+key}});
     }else if(pv==="gemini"){
@@ -2199,6 +2245,7 @@ function setClosestGenerationRatio(placement){
     gemini:{banner:"4:3","home-large":"1:1","home-small":"1:1"},
     jimeng:{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
     openai:{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
+    "jdcloud-lingjing":{banner:"1408x1056","home-large":"1024x1024","home-small":"1024x1024"},
     "openai-compat":{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
   };
   const desired=candidates[pv]?.[placement];
@@ -2343,6 +2390,46 @@ function base64ToBlob(base64,mimeType="image/png"){
   return new Blob([bytes],{type:mimeType});
 }
 
+function jdcloudLingjingProxyUrl(){
+  return location.protocol==="file:"
+    ?"https://sucai-design.netlify.app/.netlify/functions/jdcloud-image"
+    :"/.netlify/functions/jdcloud-image";
+}
+
+async function jdcloudLingjingRequest(action,payload,key=getGenerationKey()){
+  const resp=await withTimeout(fetch(jdcloudLingjingProxyUrl(),{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify({action,...payload})
+  }),30000);
+  const json=await resp.json().catch(()=>({}));
+  if(!resp.ok) throw new Error(json.error?.message||json.message||("HTTP "+resp.status));
+  return json;
+}
+
+async function callJdcloudLingjing(prompt,refBase64,size,quality){
+  if(refBase64) throw new Error("灵境参考图必须是公网 URL；请先关闭“生成时参考此图”，再使用文生图");
+  const submitted=await jdcloudLingjingRequest("submit",{prompt,size,quality,background:"auto"});
+  if(submitted?.error) throw new Error(submitted.error.message||"灵境任务提交失败");
+  const submitResult=submitted?.result?.result||{};
+  if(!submitResult.success||!submitResult.genTaskId) throw new Error(submitResult.error||submitResult.exactError||"灵境未返回任务 ID");
+  const taskId=String(submitResult.genTaskId);
+  const deadline=Date.now()+240000;
+  while(Date.now()<deadline){
+    await sleep(3000);
+    const queried=await jdcloudLingjingRequest("query",{genTaskId:taskId});
+    if(queried?.error) throw new Error(queried.error.message||"灵境任务查询失败");
+    const task=queried?.result?.result||{};
+    const image=task.taskResults?.find(item=>item?.url||item?.frameUrl);
+    if(image) return image.url||image.frameUrl;
+    if(task.finishedTime||task.taskStatus===4){
+      const reason=task.errMsg||task.error||task.taskResults?.[0]?.errorReason;
+      throw new Error(reason||"灵境任务已结束，但未返回图片");
+    }
+  }
+  throw new Error("灵境生成超时，请稍后重试");
+}
+
 async function callImageApi(prompt,refBase64){
   const key=getGenerationKey();
   if(!key) throw new Error("请先填写 API Key");
@@ -2350,6 +2437,11 @@ async function callImageApi(prompt,refBase64){
   const model=$("#aiModel").value;
   const size=$("#aiSize").value;
   const quality=$("#aiQuality").value;
+
+  /* ── 京东云灵境 · GPT Image 2 ── */
+  if(pv==="jdcloud-lingjing"){
+    return callJdcloudLingjing(prompt,refBase64,size,quality);
+  }
 
   /* ── 火山方舟 · Seedream ── */
   if(pv==="seedream"){
