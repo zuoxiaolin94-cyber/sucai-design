@@ -1784,6 +1784,7 @@ const PROVIDER_CONFIG={
   },
   "openai-compat":{
     models:[
+      {value:"I-A-6",label:"京东云灵境 · GPT Image 2（I-A-6）"},
       {value:"gpt-image-2",label:"gpt-image-2"},
       {value:"gpt-image-1",label:"gpt-image-1"},
       {value:"dall-e-3",label:"dall-e-3"},
@@ -2455,10 +2456,15 @@ async function callImageApi(prompt,refBase64){
   }else{
     generationEndpoint="https://api.openai.com/v1/images/generations";
   }
-  const isGptImage=model.startsWith("gpt-image");
+  const isGptImage=model.startsWith("gpt-image")||model==="I-A-6";
   if(refBase64&&!isGptImage) throw new Error("当前模型不支持参考图，请改用 GPT Image 2 / GPT Image 1，或关闭“生成时参考此图”");
   let resp;
-  if(refBase64){
+  const isJdCloudCompat=pv==="openai-compat"&&/modelservice\.jdcloud\.com/i.test(generationEndpoint);
+  if(refBase64&&isJdCloudCompat){
+    const editEndpoint=generationEndpoint.replace(/\/images\/generations$/, "/images/edits");
+    const body={model,prompt,image:["data:image/png;base64,"+refBase64],n:1,size,quality};
+    resp=await withTimeout(fetch(editEndpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},body:JSON.stringify(body)}),180000);
+  }else if(refBase64){
     const editEndpoint=generationEndpoint.replace(/\/images\/generations$/, "/images/edits");
     const form=new FormData();
     form.append("model",model);
