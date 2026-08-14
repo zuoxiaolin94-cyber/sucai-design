@@ -180,8 +180,20 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
 .placement-shape.banner{width:48px;height:41px}.placement-shape.large{width:46px;height:43px}.placement-shape.small{width:38px;height:38px}
 .placement-copy strong{display:block;font-size:.78rem;line-height:1.35;margin-bottom:5px}
 .placement-copy small{color:var(--muted);font-size:.66rem}
+.operator-batch-row{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:18px;padding:14px 16px;
+  border:1px solid var(--border);border-radius:13px;background:linear-gradient(135deg,var(--elevated),rgba(216,171,72,.035));
+}
+.operator-batch-copy strong{display:block;color:var(--text);font-size:.76rem;margin-bottom:4px}
+.operator-batch-copy span{display:block;color:var(--muted);font-size:.63rem;line-height:1.45}
+#operatorBatchCount{
+  width:148px;min-width:148px;height:40px;padding:0 34px 0 13px;border:1px solid var(--border-active);border-radius:10px;
+  background-color:var(--surface);color:var(--text);font:600 .76rem "Outfit","PingFang SC",sans-serif;outline:none;cursor:pointer;
+}
+#operatorBatchCount:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
 .operator-actions{display:flex;align-items:center;gap:14px;margin-top:24px}
 #btnOperatorGenerate{min-width:156px;justify-content:center;font-size:.9rem;padding:12px 24px}
+#btnOperatorStop{display:none}
 .operator-service-status{font-size:.7rem;color:var(--muted)}
 .operator-service-status.ready{color:var(--green)}
 .operator-service-status.error{color:var(--red)}
@@ -191,6 +203,7 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
 .gen-dim-row{padding:8px 12px 0;display:flex;align-items:center;gap:6px}
 @media(max-width:720px){
   .operator-creator{padding:22px!important}.placement-grid{grid-template-columns:1fr}.placement-card{min-height:82px}
+  .operator-batch-row{align-items:flex-start;flex-direction:column}.operator-batch-row #operatorBatchCount{width:100%}
   .operator-actions{align-items:stretch;flex-direction:column}.operator-actions .btn{width:100%}
 }
 
@@ -818,19 +831,35 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
     <div class="placement-grid" id="operatorPlacements" role="radiogroup" aria-label="素材投放位置">
       <button class="placement-card" type="button" role="radio" aria-checked="false" data-placement="banner">
         <span class="placement-check">✓</span><span class="placement-shape-wrap"><span class="placement-shape banner"></span></span>
-        <span class="placement-copy"><strong>Banner</strong><small>200 × 170 px</small></span>
+        <span class="placement-copy"><strong>Banner</strong><small>400 × 400 px</small></span>
       </button>
       <button class="placement-card" type="button" role="radio" aria-checked="false" data-placement="home-large">
         <span class="placement-check">✓</span><span class="placement-shape-wrap"><span class="placement-shape large"></span></span>
-        <span class="placement-copy"><strong>首页二屏一拖二大卡</strong><small>170 × 160 px</small></span>
+        <span class="placement-copy"><strong>首页二屏一拖二大卡</strong><small>460 × 410 px</small></span>
       </button>
       <button class="placement-card" type="button" role="radio" aria-checked="false" data-placement="home-small">
         <span class="placement-check">✓</span><span class="placement-shape-wrap"><span class="placement-shape small"></span></span>
-        <span class="placement-copy"><strong>首页二屏一拖二小卡</strong><small>80 × 80 px</small></span>
+        <span class="placement-copy"><strong>首页二屏一拖二小卡</strong><small>225 × 225 px</small></span>
       </button>
     </div>
+    <div class="operator-batch-row">
+      <div class="operator-batch-copy">
+        <strong>本次生成数量</strong>
+        <span>大批量任务将逐张生成，可随时停止，已完成的素材会保留</span>
+      </div>
+      <select id="operatorBatchCount" aria-label="本次生成数量">
+        <option value="1" selected>1 张</option>
+        <option value="2">2 张</option>
+        <option value="4">4 张</option>
+        <option value="8">8 张</option>
+        <option value="20">20 张</option>
+        <option value="50">50 张</option>
+        <option value="100">100 张</option>
+      </select>
+    </div>
     <div class="operator-actions">
-      <button class="btn btn-primary" id="btnOperatorGenerate" type="button">生成可用素材</button>
+      <button class="btn btn-primary" id="btnOperatorGenerate" type="button">生成 1 张素材</button>
+      <button class="btn btn-red" id="btnOperatorStop" type="button">停止生成</button>
       <span class="operator-service-status" id="operatorServiceStatus">正在检查生成服务…</span>
     </div>
     <div class="operator-rule-note">
@@ -1004,11 +1033,11 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
         <select id="aiBatchCount">
           <option value="1">1 张</option>
           <option value="2">2 张</option>
-          <option value="3">3 张</option>
           <option value="4" selected>4 张</option>
-          <option value="6">6 张</option>
           <option value="8">8 张</option>
-          <option value="10">10 张</option>
+          <option value="20">20 张</option>
+          <option value="50">50 张</option>
+          <option value="100">100 张</option>
         </select>
       </div>
       <div class="field">
@@ -2178,9 +2207,9 @@ function renderScenePresets(){
 
 /* ══════════════════════ OPERATOR QUICK CREATOR ══════════════════════ */
 const OPERATOR_PLACEMENTS={
-  banner:{label:"Banner",width:200,height:170},
-  "home-large":{label:"首页二屏一拖二大卡",width:170,height:160},
-  "home-small":{label:"首页二屏一拖二小卡",width:80,height:80},
+  banner:{label:"Banner",width:400,height:400},
+  "home-large":{label:"首页二屏一拖二大卡",width:460,height:410},
+  "home-small":{label:"首页二屏一拖二小卡",width:225,height:225},
 };
 let operatorPlacement="";
 let operatorGenerationContext=null;
@@ -2239,13 +2268,24 @@ $$("#operatorPlacements .placement-card").forEach(card=>{
   };
 });
 
+$("#operatorBatchCount").onchange=()=>{
+  const count=+$("#operatorBatchCount").value||1;
+  $("#btnOperatorGenerate").textContent=`生成 ${count} 张素材`;
+};
+
+$("#btnOperatorStop").onclick=()=>{
+  genStopped=true;
+  $("#operatorServiceStatus").className="operator-service-status error";
+  $("#operatorServiceStatus").textContent="将在当前图片完成后停止…";
+};
+
 function setClosestGenerationRatio(placement){
   const pv=$("#aiProvider").value;
   const candidates={
-    gemini:{banner:"4:3","home-large":"1:1","home-small":"1:1"},
+    gemini:{banner:"1:1","home-large":"1:1","home-small":"1:1"},
     jimeng:{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
     openai:{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
-    "jdcloud-lingjing":{banner:"1408x1056","home-large":"1024x1024","home-small":"1024x1024"},
+    "jdcloud-lingjing":{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
     "openai-compat":{banner:"1024x1024","home-large":"1024x1024","home-small":"1024x1024"},
   };
   const desired=candidates[pv]?.[placement];
@@ -2275,14 +2315,17 @@ $("#btnOperatorGenerate").onclick=()=>{
   if(!operatorPlacement){status.className="operator-service-status error";status.textContent="请选择素材投放位置";return}
   if(!getGenerationKey()){updateOperatorServiceStatus();return}
   const spec=OPERATOR_PLACEMENTS[operatorPlacement];
+  const batchCount=+$("#operatorBatchCount").value||1;
   let embeddedPrompt=buildEmbeddedSkillPrompt(copy,operatorPlacement);
   if(pickedAsset)embeddedPrompt+=` 视觉灵感可参考素材“${pickedAsset.label}”，仅提取其核心视觉符号与质感，不复制其中的文字、数字、Logo或复杂构图。`;
-  operatorGenerationContext={copy,placement:operatorPlacement,...spec,prompt:embeddedPrompt};
+  operatorGenerationContext={copy,placement:operatorPlacement,...spec,prompt:embeddedPrompt,count:batchCount};
   $("#aiFinalPrompt").value=operatorGenerationContext.prompt;
-  $("#aiBatchCount").value="1";$("#aiDelay").value="0";
+  $("#aiBatchCount").value=String(batchCount);$("#aiDelay").value="0";
   setClosestGenerationRatio(operatorPlacement);
-  status.className="operator-service-status ready";status.textContent=`正在生成 ${spec.width} × ${spec.height} px 素材…`;
+  status.className="operator-service-status ready";status.textContent=`正在生成 1/${batchCount} · ${spec.width} × ${spec.height} px`;
   $("#btnOperatorGenerate").disabled=true;
+  $("#operatorBatchCount").disabled=true;
+  $("#btnOperatorStop").style.display="inline-flex";
   $("#btnGenerate").click();
   setTimeout(()=>$("#sectionGenerated").scrollIntoView({behavior:"smooth",block:"start"}),120);
 };
@@ -2661,6 +2704,11 @@ $("#btnGenerate").onclick=async()=>{
     renderGenResults();
     $("#genProgressFill").style.width=((i)/count*100)+"%";
     $("#genStatus").textContent=`正在生成第 ${i+1}/${count} 张…`;
+    if(operatorRunContext){
+      const operatorStatus=$("#operatorServiceStatus");
+      operatorStatus.className="operator-service-status ready";
+      operatorStatus.textContent=`正在生成 ${i+1}/${count} · ${operatorRunContext.width} × ${operatorRunContext.height} px`;
+    }
 
     const _provider=$("#aiProvider").value;
     const _model=$("#aiModel")?.value||"";
@@ -2699,10 +2747,20 @@ $("#btnGenerate").onclick=async()=>{
   $("#genStatus").textContent=genStopped?"已停止":"全部完成";
   if(operatorRunContext){
     const operatorStatus=$("#operatorServiceStatus");
-    const operatorSucceeded=genResults.slice(runStartIndex).some(result=>result.status==="done");
-    operatorStatus.className="operator-service-status "+(!genStopped&&operatorSucceeded?"ready":"error");
-    operatorStatus.textContent=genStopped?"生成已停止":operatorSucceeded?`生成完成 · ${operatorRunContext.width} × ${operatorRunContext.height} px`:"生成失败，请联系管理员检查生成服务";
+    const operatorResults=genResults.slice(runStartIndex);
+    const successCount=operatorResults.filter(result=>result.status==="done").length;
+    const failedCount=operatorResults.filter(result=>result.status==="failed").length;
+    operatorStatus.className="operator-service-status "+(!genStopped&&successCount>0?"ready":"error");
+    operatorStatus.textContent=genStopped
+      ?`已停止 · 完成 ${successCount}/${operatorRunContext.count}`
+      :successCount===operatorRunContext.count
+        ?`生成完成 · ${successCount} 张 · ${operatorRunContext.width} × ${operatorRunContext.height} px`
+        :successCount>0
+          ?`完成 ${successCount}/${operatorRunContext.count} · ${failedCount} 张失败`
+          :"生成失败，请联系管理员检查生成服务";
     $("#btnOperatorGenerate").disabled=false;
+    $("#operatorBatchCount").disabled=false;
+    $("#btnOperatorStop").style.display="none";
   }
   toast(genStopped?"已停止生成":"批量生成完成");
 };
