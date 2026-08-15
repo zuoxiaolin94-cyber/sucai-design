@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <script>(function(){try{document.documentElement.dataset.theme=localStorage.getItem("sucai-theme")==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}})();</script>
-<title>理财投资二屏卡 · 批量素材工作台</title>
+<title>素材生成 2.0 · 多模型工作台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -158,6 +158,19 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
 .operator-kicker::before{content:"";width:20px;height:1px;background:var(--gold)}
 .operator-creator h2{font-size:1.45rem!important;margin-bottom:7px!important;letter-spacing:.2px}
 .operator-intro{color:var(--text2);font-size:.8rem;margin-bottom:25px}
+.operator-model-matrix{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-12px 0 24px}
+.operator-model-chip{appearance:none;display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--border);border-radius:999px;background:var(--elevated);color:var(--text2);font:600 .63rem "Outfit","PingFang SC",sans-serif;cursor:pointer;transition:transform .18s,border-color .18s,background .18s,color .18s,box-shadow .18s}
+.operator-model-chip::before{content:"";width:13px;height:13px;display:grid;place-items:center;flex:0 0 auto;border:1px solid var(--border-active);border-radius:50%;background:transparent;color:transparent;font-size:.5rem;font-weight:900;transition:.18s}
+.operator-model-chip:hover{transform:translateY(-1px);border-color:var(--border-active);color:var(--text)}
+.operator-model-chip.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold-l);box-shadow:0 0 0 2px rgba(216,171,72,.08)}
+.operator-model-chip.active::before{content:"✓";border-color:var(--gold);background:var(--gold);color:#19130A;box-shadow:0 0 0 3px var(--gold-dim)}
+.operator-model-chip:focus-visible{outline:none;box-shadow:0 0 0 3px var(--gold-dim)}
+.operator-model-chip:disabled{cursor:not-allowed;opacity:.62;transform:none}
+.designer-model-panel{margin:18px 0;padding:17px 18px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(135deg,var(--elevated),rgba(216,171,72,.035))}
+.designer-model-panel .operator-field-label{margin-bottom:13px}
+.designer-model-panel .operator-model-matrix{margin:0}
+.designer-model-panel .operator-model-chip{font-size:.69rem;padding:8px 12px}
+.designer-batch-row{margin-top:12px}
 .operator-field-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;color:var(--text2);font-size:.75rem;font-weight:600}
 .operator-field-label span{color:var(--muted);font-size:.65rem;font-weight:400}
 #operatorCopy{
@@ -201,6 +214,8 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
 .operator-rule-note svg{width:14px;height:14px;stroke:var(--gold-l);fill:none;stroke-width:1.8}
 .dimension-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;background:var(--gold-dim);color:var(--gold-l);font-size:.58rem;font-weight:700;letter-spacing:.3px}
 .gen-dim-row{padding:8px 12px 0;display:flex;align-items:center;gap:6px}
+.model-badge{position:absolute;top:10px;left:10px;z-index:3;display:inline-flex;align-items:center;max-width:calc(100% - 88px);padding:5px 9px;border-radius:999px;background:rgba(28,24,18,.84);border:1px solid rgba(255,255,255,.18);box-shadow:0 4px 14px rgba(0,0,0,.18);backdrop-filter:blur(8px);color:#FFF3D6;font-size:.59rem;font-weight:700;letter-spacing:.15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gen-card{position:relative}
 @media(max-width:720px){
   .operator-creator{padding:22px!important}.placement-grid{grid-template-columns:1fr}.placement-card{min-height:82px}
   .operator-batch-row{align-items:flex-start;flex-direction:column}.operator-batch-row #operatorBatchCount{width:100%}
@@ -739,8 +754,8 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
 </div>
 
 <header>
-  <h1>批量素材工作台</h1>
-  <p>Figma 设计稿风格 &nbsp;·&nbsp; AI 文生图 &nbsp;·&nbsp; 可视化编辑 &nbsp;·&nbsp; 一键导出</p>
+  <h1>批量素材工作台 · 2.0</h1>
+  <p>五模型同步生图 &nbsp;·&nbsp; 可视化编辑 &nbsp;·&nbsp; 一键导出</p>
 </header>
 
 <div class="tabs">
@@ -824,7 +839,14 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
   <div class="ai-section operator-creator" id="operatorCreator">
     <div class="operator-kicker">运营素材快捷生成</div>
     <h2>一句文案，直接生成可投放素材</h2>
-    <p class="operator-intro">输入本次营销诉求并选择投放位置，风格、构图与尺寸规则会自动完成。</p>
+    <p class="operator-intro">选择需要参与生成的模型，再输入一次营销诉求；风格、构图与尺寸规则会自动完成。</p>
+    <div class="operator-model-matrix" id="operatorModelMatrix" role="group" aria-label="选择参与生成的模型">
+      <button class="operator-model-chip active" type="button" data-model-key="gpt-image-2" aria-pressed="true">GPT Image 2</button>
+      <button class="operator-model-chip" type="button" data-model-key="seedream-5-pro" aria-pressed="false">Seedream 5.0 Pro</button>
+      <button class="operator-model-chip" type="button" data-model-key="banana-2-flash" aria-pressed="false">香蕉 2 Flash</button>
+      <button class="operator-model-chip" type="button" data-model-key="banana-pro" aria-pressed="false">香蕉 Pro</button>
+      <button class="operator-model-chip" type="button" data-model-key="banana-flash" aria-pressed="false">香蕉 Flash</button>
+    </div>
     <div class="operator-field-label"><label for="operatorCopy">营销文案</label><span>一句话即可，建议 30 字以内</span></div>
     <input id="operatorCopy" type="text" maxlength="60" autocomplete="off" placeholder="例如：新春理财收益翻倍，限时加息"/>
     <div class="operator-field-label" style="margin-top:20px"><span style="color:var(--text2);font-size:.75rem;font-weight:600">素材投放位置</span><span>将自动输出准确像素尺寸</span></div>
@@ -844,10 +866,10 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
     </div>
     <div class="operator-batch-row">
       <div class="operator-batch-copy">
-        <strong>本次生成数量</strong>
-        <span>大批量任务将逐张生成，可随时停止，已完成的素材会保留</span>
+        <strong>每个模型生成数量</strong>
+        <span id="operatorBatchSummary">已选 1 个模型 · 本次预计生成 1 张；可随时停止，已完成素材会保留</span>
       </div>
-      <select id="operatorBatchCount" aria-label="本次生成数量">
+      <select id="operatorBatchCount" aria-label="每个模型生成数量">
         <option value="1" selected>1 张</option>
         <option value="2">2 张</option>
         <option value="4">4 张</option>
@@ -857,7 +879,7 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
       </select>
     </div>
     <div class="operator-actions">
-      <button class="btn btn-primary" id="btnOperatorGenerate" type="button">生成 1 张素材</button>
+      <button class="btn btn-primary" id="btnOperatorGenerate" type="button">1 个模型共生成 1 张</button>
       <button class="btn btn-red" id="btnOperatorStop" type="button">停止生成</button>
       <span class="operator-service-status" id="operatorServiceStatus">正在检查生成服务…</span>
     </div>
@@ -1026,26 +1048,35 @@ body.operator-mode .gen-info,body.operator-mode .hist-prompt-row,body.operator-m
       <textarea id="aiFinalPrompt" style="min-height:120px;font-size:.8125rem"></textarea>
     </div>
 
-    <div class="api-row">
-      <div class="field">
-        <label>批量数量</label>
-        <select id="aiBatchCount">
-          <option value="1">1 张</option>
-          <option value="2">2 张</option>
-          <option value="4" selected>4 张</option>
-          <option value="8">8 张</option>
-          <option value="20">20 张</option>
-          <option value="50">50 张</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>每张间隔（秒，防限频）</label>
-        <input type="number" id="aiDelay" value="3" min="0" max="30"/>
+    <div class="designer-model-panel" id="designerModelPanel">
+      <div class="operator-field-label"><span style="color:var(--text2);font-size:.75rem;font-weight:600">选择参与生成的模型</span><span>可多选 · 默认 GPT Image 2</span></div>
+      <div class="operator-model-matrix" id="designerModelMatrix" role="group" aria-label="设计师选择参与生成的模型">
+        <button class="operator-model-chip active" type="button" data-model-key="gpt-image-2" aria-pressed="true">GPT Image 2</button>
+        <button class="operator-model-chip" type="button" data-model-key="seedream-5-pro" aria-pressed="false">Seedream 5.0 Pro</button>
+        <button class="operator-model-chip" type="button" data-model-key="banana-2-flash" aria-pressed="false">香蕉 2 Flash</button>
+        <button class="operator-model-chip" type="button" data-model-key="banana-pro" aria-pressed="false">香蕉 Pro</button>
+        <button class="operator-model-chip" type="button" data-model-key="banana-flash" aria-pressed="false">香蕉 Flash</button>
       </div>
     </div>
 
+    <div class="operator-batch-row designer-batch-row">
+      <div class="operator-batch-copy">
+        <strong>每个模型生成数量</strong>
+        <span id="designerBatchSummary">已选 1 个模型 · 本次预计生成 1 张；可随时停止，已完成素材会保留</span>
+      </div>
+      <select id="aiBatchCount" aria-label="设计师每个模型生成数量">
+          <option value="1" selected>1 张</option>
+          <option value="2">2 张</option>
+          <option value="4">4 张</option>
+          <option value="8">8 张</option>
+          <option value="20">20 张</option>
+          <option value="50">50 张</option>
+      </select>
+      <input type="hidden" id="aiDelay" value="3"/>
+    </div>
+
     <div class="actions">
-      <button class="btn btn-green" id="btnGenerate" style="font-size:1rem;padding:12px 28px">开始 AI 生成</button>
+      <button class="btn btn-green" id="btnGenerate" style="font-size:1rem;padding:12px 28px">1 个模型共生成 1 张</button>
       <button class="btn btn-red" id="btnStopGen" style="display:none">停止</button>
       <button class="btn btn-outline" id="btnBuildPrompt">刷新预览提示词</button>
     </div>
@@ -1229,7 +1260,7 @@ function saveCurrentApiPrefs(){
     const composed=jimengComposeKey();
     prefs.keys.jimeng=composed;
     if($("#aiKey")) $("#aiKey").value=composed;
-  }else{
+  }else if(!(pv==="jdcloud-lingjing"&&localLingjingUrl())){
     prefs.keys[pv]=$("#aiKey").value.trim();
   }
   prefs.endpoint=$("#aiEndpoint").value.trim();
@@ -1893,9 +1924,9 @@ const KEY_HELP={
     <span style="color:var(--muted)">⚠ GPT Image 模型可能要求组织验证；国内网络通常需要代理。选择参考图时会自动切换到 <code>/images/edits</code>。</span>`,
   "jdcloud-lingjing":`<b>京东云灵境 · GPT Image 2</b><br>
     1. 使用灵境平台分配的 AppKey（通常以 <code>sk-</code> 开头）<br>
-    2. 工作台通过本站受限转发接口调用官方 <code>apiId 603</code><br>
+    2. 2.0 本地工作台通过本机受限服务调用官方 <code>apiId 603</code><br>
     3. 支持 1K / 2K / 4K、多种比例以及低 / 标准 / 高画质<br>
-    <span style="color:var(--muted)">🔒 Key 只保存在当前浏览器，不会写入网页代码或部署文件。当前素材库图片是本地文件，不能直接作为灵境公网参考图。</span>`,
+    <span style="color:var(--muted)">🔒 2.0 的默认 AppKey 只保存在本机安全配置文件中，不会写入或传回网页。当前素材库图片是本地文件，不能直接作为灵境公网参考图。</span>`,
   "openai-compat":`<b>OpenAI 兼容接口（中转/自建）</b><br>
     1. 把代理服务方提供给你的 Key 粘到上方<br>
     2. 在「自定义 API 地址」里填代理域名（通常长这样：<code>https://xxx.com/v1/images/generations</code>）<br>
@@ -1915,8 +1946,24 @@ function syncProviderUI(){
   const isJimeng=pv==="jimeng";
   $("#fieldSingleKey").style.display=isJimeng?"none":"block";
   $("#fieldJimengKey").style.display=isJimeng?"block":"none";
-  $("#aiKey").placeholder=cfg.keyPlaceholder;
-  $("#keyHint").textContent=cfg.keyHint;
+  const usesLocalLingjing=pv==="jdcloud-lingjing"&&!!localLingjingUrl();
+  $("#aiKey").readOnly=usesLocalLingjing;
+  $("#toggleKeyEye").disabled=usesLocalLingjing;
+  if(usesLocalLingjing){
+    $("#aiKey").type="password";
+    $("#aiKey").value="••••••••••••••••";
+    $("#aiKey").placeholder="已从本机安全配置加载";
+    $("#keyHint").textContent="AppKey 已从 2.0 本机安全配置加载，不会暴露在网页中";
+    $("#keyPersistHint").textContent="🔒 默认 AppKey 仅保存在本机安全配置文件中，网页只显示掩码";
+    fetch("/api/health").then(resp=>resp.json()).then(health=>{
+      const ready=health.ok&&health.configured;
+      $("#apiStatusLabel").innerHTML=ready?'<span class="status-dot ok"></span>本机安全配置已加载':'<span class="status-dot err"></span>本机尚未配置';
+    }).catch(()=>{$("#apiStatusLabel").innerHTML='<span class="status-dot err"></span>本地服务未启动'});
+  }else{
+    $("#aiKey").placeholder=cfg.keyPlaceholder;
+    $("#keyHint").textContent=cfg.keyHint;
+    $("#keyPersistHint").textContent="🔒 Key 仅保存在你当前浏览器本地，下次打开自动填充（不会上传给作者，也不会被同事看到）";
+  }
 
   $("#keyHelpBody").innerHTML=KEY_HELP[pv]||"";
   if(typeof updateOperatorServiceStatus==="function")setTimeout(updateOperatorServiceStatus,0);
@@ -1961,7 +2008,11 @@ $("#aiProvider").onchange=()=>{
   const prefs2=loadApiPrefs();
   const pv=$("#aiProvider").value;
   const saved=(prefs2.keys&&prefs2.keys[pv])||"";
-  $("#aiKey").value=saved;
+  if(pv==="jdcloud-lingjing"&&localLingjingUrl()){
+    $("#aiKey").value="••••••••••••••••";
+  }else{
+    $("#aiKey").value=saved;
+  }
   if(pv==="jimeng"){
     const {ak,sk}=jimengSplitKey(saved);
     $("#aiAccessKey").value=ak;
@@ -2007,6 +2058,7 @@ if(toggleSecretBtn){
 }
 
 function validateKeyFormat(pv){
+  if(pv==="jdcloud-lingjing"&&localLingjingUrl())return "";
   if(pv==="jimeng"){
     const ak=($("#aiAccessKey")?.value||"").trim();
     const sk=($("#aiSecretKey")?.value||"").trim();
@@ -2126,7 +2178,7 @@ $("#btnTestApi").onclick=async()=>{
       const code=check?.error?.code;
       if(code===21||/task_not_exist/i.test(check?.error?.message||"")){
         label.innerHTML='<span class="status-dot ok"></span>✓ 连接成功（灵境）';
-        showApiDetail("ok","<b>✓ AppKey 有效，GPT Image 2 服务已连接</b><br>密钥已保存在当前浏览器本地，可以开始生成图片了。");
+        showApiDetail("ok","<b>✓ AppKey 有效，GPT Image 2 服务已连接</b><br>密钥已从 2.0 本机安全配置加载，可以开始生成图片了。");
         toast("灵境 GPT Image 2 连接正常");return;
       }
       if(check?.error) throw new Error(check.error.message||("灵境错误码 "+code));
@@ -2209,8 +2261,18 @@ const OPERATOR_PLACEMENTS={
   "home-large":{label:"首页二屏一拖二大卡",width:460,height:410},
   "home-small":{label:"首页二屏一拖二小卡",width:225,height:225},
 };
+const LINGJING_MODEL_MATRIX=[
+  {key:"gpt-image-2",label:"GPT Image 2",model:"gpt-image-2"},
+  {key:"seedream-5-pro",label:"Seedream 5.0 Pro",model:"doubao-seedream-5-0-pro-260628"},
+  {key:"banana-2-flash",label:"香蕉 2 Flash",model:"Gemini-3.1-Flash-Image-Preview"},
+  {key:"banana-pro",label:"香蕉 Pro",model:"Gemini 3-Pro-Image-Preview"},
+  {key:"banana-flash",label:"香蕉 Flash",model:"Gemini-2.5-flash-image"},
+];
+const selectedLingjingModelKeys=new Set(["gpt-image-2"]);
+const selectedDesignerModelKeys=new Set(["gpt-image-2"]);
 let operatorPlacement="";
 let operatorGenerationContext=null;
+let designerGenerationContext=null;
 
 function mapMarketingCopyToSymbols(copy){
   const rules=[
@@ -2239,9 +2301,40 @@ function getGenerationKey(){
   return $("#aiProvider").value==="jimeng"?jimengComposeKey():$("#aiKey").value.trim();
 }
 
-function updateOperatorServiceStatus(){
+async function updateOperatorServiceStatus(){
   const status=$("#operatorServiceStatus");
   if(!status)return;
+  if(document.body.classList.contains("operator-mode")){
+    if(location.protocol==="file:"){
+      status.className="operator-service-status error";
+      status.textContent="当前是文件预览模式，点击下方按钮进入 2.0 生成服务";
+      const generateButton=$("#btnOperatorGenerate");
+      if(generateButton)generateButton.textContent="打开 2.0 生成服务";
+      return;
+    }
+    const healthUrl=localLingjingUrl("/api/health");
+    if(healthUrl){
+      try{
+        const health=await fetch(healthUrl).then(resp=>resp.json());
+        const ready=health.ok&&health.configured;
+        status.className="operator-service-status "+(ready?"ready":"error");
+        status.textContent=ready?"● 5 个灵境模型已就绪":"本机尚未配置灵境 AppKey";
+        return;
+      }catch(error){
+        status.className="operator-service-status error";
+        status.textContent="本地生成服务未启动";
+        return;
+      }
+    }
+    const ready=!!getGenerationKey();
+    status.className="operator-service-status "+(ready?"ready":"error");
+    status.textContent=ready?"● 5 个灵境模型已就绪":"请先在 API 配置中填写灵境 AppKey";
+    if(!ready){
+      const generateButton=$("#btnOperatorGenerate");
+      if(generateButton)generateButton.textContent="请先配置 AppKey";
+    }
+    return;
+  }
   const ready=!!getGenerationKey();
   status.className="operator-service-status "+(ready?"ready":"error");
   status.textContent=ready?"● 生成服务已就绪":"生成服务暂未配置，请联系管理员";
@@ -2266,10 +2359,81 @@ $$("#operatorPlacements .placement-card").forEach(card=>{
   };
 });
 
-$("#operatorBatchCount").onchange=()=>{
+function getSelectedLingjingModels(){
+  return LINGJING_MODEL_MATRIX.filter(model=>selectedLingjingModelKeys.has(model.key));
+}
+
+function setOperatorModelControlsDisabled(disabled){
+  $$("#operatorModelMatrix .operator-model-chip").forEach(button=>button.disabled=disabled);
+}
+
+function updateOperatorModelSelectionUI(){
   const count=+$("#operatorBatchCount").value||1;
-  $("#btnOperatorGenerate").textContent=`生成 ${count} 张素材`;
-};
+  const selectedCount=getSelectedLingjingModels().length;
+  const total=count*selectedCount;
+  $$("#operatorModelMatrix .operator-model-chip").forEach(button=>{
+    const active=selectedLingjingModelKeys.has(button.dataset.modelKey);
+    button.classList.toggle("active",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+  $("#btnOperatorGenerate").textContent=location.protocol==="file:"&&selectedCount
+    ?"打开 2.0 生成服务"
+    :selectedCount?`${selectedCount} 个模型共生成 ${total} 张`:"请先选择生成模型";
+  $("#btnOperatorGenerate").disabled=selectedCount===0;
+  $("#operatorBatchSummary").textContent=selectedCount
+    ?`已选 ${selectedCount} 个模型 · 本次预计生成 ${total} 张；可随时停止，已完成素材会保留`
+    :"尚未选择模型 · 请至少勾选一个模型";
+}
+
+$$("#operatorModelMatrix .operator-model-chip").forEach(button=>{
+  button.onclick=()=>{
+    const key=button.dataset.modelKey;
+    if(selectedLingjingModelKeys.has(key))selectedLingjingModelKeys.delete(key);
+    else selectedLingjingModelKeys.add(key);
+    updateOperatorModelSelectionUI();
+  };
+});
+
+$("#operatorBatchCount").onchange=updateOperatorModelSelectionUI;
+updateOperatorModelSelectionUI();
+
+function getSelectedDesignerModels(){
+  return LINGJING_MODEL_MATRIX.filter(model=>selectedDesignerModelKeys.has(model.key));
+}
+
+function setDesignerModelControlsDisabled(disabled){
+  $$("#designerModelMatrix .operator-model-chip").forEach(button=>button.disabled=disabled);
+}
+
+function updateDesignerModelSelectionUI(){
+  const perModelCount=+$("#aiBatchCount").value||1;
+  const selectedCount=getSelectedDesignerModels().length;
+  const total=perModelCount*selectedCount;
+  $$("#designerModelMatrix .operator-model-chip").forEach(button=>{
+    const active=selectedDesignerModelKeys.has(button.dataset.modelKey);
+    button.classList.toggle("active",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+  $("#btnGenerate").textContent=location.protocol==="file:"&&selectedCount
+    ?"打开 2.0 生成服务"
+    :selectedCount?`${selectedCount} 个模型共生成 ${total} 张`:"请先选择生成模型";
+  $("#btnGenerate").disabled=selectedCount===0;
+  $("#designerBatchSummary").textContent=selectedCount
+    ?`已选 ${selectedCount} 个模型 · 本次预计生成 ${total} 张；可随时停止，已完成素材会保留`
+    :"尚未选择模型 · 请至少勾选一个模型";
+}
+
+$$("#designerModelMatrix .operator-model-chip").forEach(button=>{
+  button.onclick=()=>{
+    const key=button.dataset.modelKey;
+    if(selectedDesignerModelKeys.has(key))selectedDesignerModelKeys.delete(key);
+    else selectedDesignerModelKeys.add(key);
+    updateDesignerModelSelectionUI();
+  };
+});
+
+$("#aiBatchCount").onchange=updateDesignerModelSelectionUI;
+updateDesignerModelSelectionUI();
 
 $("#btnOperatorStop").onclick=()=>{
   genStopped=true;
@@ -2306,26 +2470,224 @@ async function resizeToOperatorPlacement(dataUrl,spec){
   }catch(error){return {dataUrl,normalized:false}}
 }
 
-$("#btnOperatorGenerate").onclick=()=>{
+function localLingjingUrl(path="/api/lingjing"){
+  if(location.hostname==="127.0.0.1"||location.hostname==="localhost") return path;
+  return "";
+}
+
+async function localLingjingRequest(payload,timeout=30000){
+  const endpoint=localLingjingUrl()||"/.netlify/functions/jdcloud-image";
+  const isLocal=!!localLingjingUrl();
+  const key=getGenerationKey();
+  if(!isLocal&&!key) throw new Error("请先在 API 配置中填写灵境 AppKey");
+  const resp=await withTimeout(fetch(endpoint,{
+    method:"POST",
+    headers:isLocal?{"Content-Type":"application/json"}:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify(payload)
+  }),timeout);
+  const json=await resp.json().catch(()=>({}));
+  if(!resp.ok) throw new Error(json.error?.message||json.message||("HTTP "+resp.status));
+  return json;
+}
+
+function localImageProxyUrl(imageUrl){
+  return localLingjingUrl("/api/image?url="+encodeURIComponent(imageUrl))
+    ||"/.netlify/functions/jdcloud-image?image="+encodeURIComponent(imageUrl);
+}
+
+async function callLingjingMatrixModel(modelSpec,prompt,taskNum){
+  const submitted=await localLingjingRequest({action:"submit",modelKey:modelSpec.key,prompt,taskNum});
+  if(submitted?.error) throw new Error(submitted.error.message||`${modelSpec.label} 提交失败`);
+  const submitResult=submitted?.result?.result||{};
+  if(!submitResult.success||!submitResult.genTaskId) throw new Error(submitResult.error||submitResult.exactError||`${modelSpec.label} 未返回任务 ID`);
+  const deadline=Date.now()+300000;
+  while(Date.now()<deadline){
+    if(genStopped) throw new Error("用户停止生成");
+    await sleep(3000);
+    const queried=await localLingjingRequest({action:"query",genTaskId:String(submitResult.genTaskId)});
+    if(queried?.error) throw new Error(queried.error.message||`${modelSpec.label} 查询失败`);
+    const task=queried?.result?.result||{};
+    const urls=(task.taskResults||[]).map(item=>item?.url||item?.frameUrl).filter(Boolean);
+    if(urls.length) return urls.map(localImageProxyUrl);
+    if(task.finishedTime||task.taskStatus===4){
+      throw new Error(task.errMsg||task.error||task.taskResults?.[0]?.errorReason||`${modelSpec.label} 未返回图片`);
+    }
+  }
+  throw new Error(`${modelSpec.label} 生成超时`);
+}
+
+async function callLingjingMatrixModelWithRetry(modelSpec,prompt,taskNum,maxAttempts=2){
+  let lastError=null;
+  for(let attempt=1;attempt<=maxAttempts;attempt++){
+    try{
+      return await callLingjingMatrixModel(modelSpec,prompt,taskNum);
+    }catch(error){
+      lastError=error;
+      if(genStopped||attempt===maxAttempts)throw error;
+      if(document.body.classList.contains("operator-mode")){
+        const status=$("#operatorServiceStatus");
+        status.className="operator-service-status ready";
+        status.textContent=`${modelSpec.label} 首次生成失败，正在自动重试…`;
+      }else{
+        $("#genStatus").textContent=`${modelSpec.label} 首次生成失败，正在自动重试…`;
+      }
+      await sleep(2500);
+    }
+  }
+  throw lastError||new Error(`${modelSpec.label} 生成失败`);
+}
+
+async function runLingjingModelMatrix(prompt,context,perModelCount,modelSpecs,surface="operator"){
+  const total=modelSpecs.length*perModelCount;
+  const startIndex=genResults.length;
+  const slots=new Map();
+  modelSpecs.forEach(modelSpec=>{
+    const indexes=[];
+    for(let i=0;i<perModelCount;i++){
+      indexes.push(genResults.length);
+      genResults.push({status:"generating",prompt,model:modelSpec.model,modelLabel:modelSpec.label,provider:"jdcloud-lingjing-matrix"});
+    }
+    slots.set(modelSpec.key,indexes);
+  });
+  renderGenResults();
+
+  let finished=0;
+  const updateProgress=()=>{
+    const percent=total?finished/total*100:0;
+    $("#genProgressFill").style.width=percent+"%";
+    $("#genStatus").textContent=`已完成 ${finished}/${total} 张`;
+    if(surface==="operator"){
+      const status=$("#operatorServiceStatus");
+      status.className="operator-service-status ready";
+      status.textContent=`${modelSpecs.length} 个模型生成中 · ${finished}/${total} · ${context.width} × ${context.height} px`;
+    }else{
+      $("#genStatus").textContent=`${modelSpecs.length} 个模型生成中 · ${finished}/${total} · ${context.width} × ${context.height} px`;
+    }
+  };
+
+  genStopped=false;
+  $("#btnGenerate").disabled=true;
+  $("#genProgress").style.display="block";
+  updateProgress();
+
+  const runOneModel=async modelSpec=>{
+    const indexes=slots.get(modelSpec.key);
+    let cursor=0;
+    while(cursor<indexes.length&&!genStopped){
+      const requestCount=Math.min(2,indexes.length-cursor);
+      const requestIndexes=indexes.slice(cursor,cursor+requestCount);
+      try{
+        const urls=await callLingjingMatrixModelWithRetry(modelSpec,prompt,requestCount);
+        for(let offset=0;offset<requestIndexes.length;offset++){
+          const idx=requestIndexes[offset];
+          const url=urls[offset];
+          if(!url) throw new Error(`${modelSpec.label} 返回图片数量不足`);
+          const processed=await resizeToOperatorPlacement(url,context);
+          if(!processed.normalized) throw new Error(`${modelSpec.label} 图片无法转换为目标尺寸`);
+          genResults[idx]={status:"done",prompt,dataUrl:processed.dataUrl,width:context.width,height:context.height,placement:context.placement,placementLabel:context.label,normalized:true,model:modelSpec.model,modelLabel:modelSpec.label,provider:"jdcloud-lingjing-matrix"};
+          finished++;updateProgress();renderGenResults();
+          TRACKER.log({type:"generate",provider:"jdcloud-lingjing-matrix",model:modelSpec.model,prompt,status:"success",meta:{placement:context.placement,outputSize:`${context.width}x${context.height}`}});
+        }
+      }catch(error){
+        requestIndexes.forEach(idx=>{
+          if(genResults[idx]?.status==="generating"){
+            genResults[idx]={status:"failed",prompt,error:error.message||"未知错误",model:modelSpec.model,modelLabel:modelSpec.label,provider:"jdcloud-lingjing-matrix"};
+            finished++;
+          }
+        });
+        updateProgress();renderGenResults();
+        TRACKER.log({type:"generate",provider:"jdcloud-lingjing-matrix",model:modelSpec.model,prompt,status:"failed",error:error.message||"未知错误"});
+      }
+      cursor+=requestCount;
+    }
+  };
+
+  // 灵境同一 AppKey 的并发任务过多时会整批限流。固定两条模型通道，
+  // 既能让不同模型并行，又避免五个模型在同一瞬间提交。
+  const modelQueue=[...modelSpecs];
+  const workers=Array.from({length:Math.min(2,modelQueue.length)},async()=>{
+    while(modelQueue.length&&!genStopped){
+      const modelSpec=modelQueue.shift();
+      if(modelSpec)await runOneModel(modelSpec);
+    }
+  });
+  await Promise.all(workers);
+
+  genResults.slice(startIndex).forEach(item=>{
+    if(item.status==="generating"){
+      item.status="failed";item.error=genStopped?"用户停止生成":"生成中断";finished++;
+    }
+  });
+  renderGenResults();
+  const runResults=genResults.slice(startIndex);
+  const done=runResults.filter(item=>item.status==="done");
+  const failed=runResults.filter(item=>item.status==="failed");
+  done.forEach(item=>item._historySaved=true);
+  if(done.length)addToHistory(done);
+  $("#btnGenerate").disabled=false;
+  $("#genProgress").style.display="none";
+  $("#genStatus").textContent=genStopped?"已停止":"全部模型已完成";
+  if(surface==="operator"){
+    const status=$("#operatorServiceStatus");
+    status.className="operator-service-status "+(done.length?"ready":"error");
+    status.textContent=genStopped
+      ?`已停止 · 完成 ${done.length}/${total}`
+      :`${modelSpecs.length} 个模型完成 · 成功 ${done.length} 张${failed.length?` · 失败 ${failed.length} 张`:""}`;
+    $("#btnOperatorGenerate").disabled=false;
+    $("#operatorBatchCount").disabled=false;
+    setOperatorModelControlsDisabled(false);
+    updateOperatorModelSelectionUI();
+    $("#btnOperatorStop").style.display="none";
+  }else{
+    $("#genStatus").textContent=genStopped
+      ?`已停止 · 完成 ${done.length}/${total}`
+      :`${modelSpecs.length} 个模型完成 · 成功 ${done.length} 张${failed.length?` · 失败 ${failed.length} 张`:""}`;
+    $("#aiBatchCount").disabled=false;
+    setDesignerModelControlsDisabled(false);
+    updateDesignerModelSelectionUI();
+    $("#btnStopGen").style.display="none";
+  }
+  toast(genStopped?"已停止生成":`${modelSpecs.length} 个模型已完成，共 ${done.length} 张可选素材`);
+}
+
+$("#btnOperatorGenerate").onclick=async()=>{
   const copy=$("#operatorCopy").value.trim();
   const status=$("#operatorServiceStatus");
+  if(location.protocol==="file:"){
+    status.className="operator-service-status ready";
+    status.textContent="正在打开 2.0 生成服务…";
+    window.location.href="http://127.0.0.1:8765/index.html";
+    return;
+  }
   if(!copy){status.className="operator-service-status error";status.textContent="请先输入一句营销文案";$("#operatorCopy").focus();return}
   if(!operatorPlacement){status.className="operator-service-status error";status.textContent="请选择素材投放位置";return}
-  if(!getGenerationKey()){updateOperatorServiceStatus();return}
+  const selectedModels=getSelectedLingjingModels();
+  if(!selectedModels.length){status.className="operator-service-status error";status.textContent="请至少选择一个生成模型";return}
   const spec=OPERATOR_PLACEMENTS[operatorPlacement];
   const batchCount=+$("#operatorBatchCount").value||1;
   let embeddedPrompt=buildEmbeddedSkillPrompt(copy,operatorPlacement);
   if(pickedAsset)embeddedPrompt+=` 视觉灵感可参考素材“${pickedAsset.label}”，仅提取其核心视觉符号与质感，不复制其中的文字、数字、Logo或复杂构图。`;
-  operatorGenerationContext={copy,placement:operatorPlacement,...spec,prompt:embeddedPrompt,count:batchCount};
+  operatorGenerationContext={copy,placement:operatorPlacement,...spec,prompt:embeddedPrompt,count:batchCount*selectedModels.length,modelKeys:selectedModels.map(model=>model.key)};
   $("#aiFinalPrompt").value=operatorGenerationContext.prompt;
-  $("#aiBatchCount").value=String(batchCount);$("#aiDelay").value="0";
   setClosestGenerationRatio(operatorPlacement);
-  status.className="operator-service-status ready";status.textContent=`正在生成 1/${batchCount} · ${spec.width} × ${spec.height} px`;
+  status.className="operator-service-status ready";status.textContent=`正在启动 ${selectedModels.length} 个模型 · 共 ${operatorGenerationContext.count} 张`;
   $("#btnOperatorGenerate").disabled=true;
   $("#operatorBatchCount").disabled=true;
+  setOperatorModelControlsDisabled(true);
   $("#btnOperatorStop").style.display="inline-flex";
-  $("#btnGenerate").click();
   setTimeout(()=>$("#sectionGenerated").scrollIntoView({behavior:"smooth",block:"start"}),120);
+  try{
+    await runLingjingModelMatrix(embeddedPrompt,operatorGenerationContext,batchCount,selectedModels);
+  }catch(error){
+    status.className="operator-service-status error";
+    status.textContent=error.message||"多模型生成失败";
+    $("#btnOperatorGenerate").disabled=false;
+    $("#operatorBatchCount").disabled=false;
+    setOperatorModelControlsDisabled(false);
+    updateOperatorModelSelectionUI();
+    $("#btnOperatorStop").style.display="none";
+    toast(error.message||"多模型生成失败");
+  }
 };
 
 function buildPrompt(){
@@ -2432,20 +2794,26 @@ function base64ToBlob(base64,mimeType="image/png"){
 }
 
 function jdcloudLingjingProxyUrl(){
+  if(localLingjingUrl())return "/api/lingjing";
   return location.protocol==="file:"
     ?"https://sucai-design.netlify.app/.netlify/functions/jdcloud-image"
     :"/.netlify/functions/jdcloud-image";
 }
 
 function jdcloudLingjingImageProxyUrl(imageUrl){
+  if(localLingjingUrl())return localImageProxyUrl(imageUrl);
   return jdcloudLingjingProxyUrl()+"?image="+encodeURIComponent(imageUrl);
 }
 
 async function jdcloudLingjingRequest(action,payload,key=getGenerationKey()){
+  const isLocal=!!localLingjingUrl();
+  const body=isLocal&&action==="submit"
+    ?{action:"submit",modelKey:"gpt-image-2",prompt:payload.prompt,taskNum:1}
+    :{action,...payload};
   const resp=await withTimeout(fetch(jdcloudLingjingProxyUrl(),{
     method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-    body:JSON.stringify({action,...payload})
+    headers:isLocal?{"Content-Type":"application/json"}:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify(body)
   }),30000);
   const json=await resp.json().catch(()=>({}));
   if(!resp.ok) throw new Error(json.error?.message||json.message||("HTTP "+resp.status));
@@ -2630,11 +2998,13 @@ function renderGenResults(){
 
   genResults.forEach((item,i)=>{
     const d=document.createElement("div");d.className="gen-card";
+    const modelBadge=item.modelLabel?`<span class="model-badge" title="${escapeHtml(item.modelLabel)}">${escapeHtml(item.modelLabel)}</span>`:"";
     if(item.status==="generating"){
-      d.innerHTML=`<div class="gen-placeholder"><div class="spinner"></div><span>生成中… #${i+1}</span></div><span class="gen-status generating">生成中</span>`;
+      d.innerHTML=`${modelBadge}<div class="gen-placeholder"><div class="spinner"></div><span>${escapeHtml(item.modelLabel||"模型")}生成中…</span></div><span class="gen-status generating">生成中</span>`;
     }else if(item.status==="done"){
       const dimensionInfo=item.width&&item.height?`<div class="gen-dim-row"><span class="dimension-badge">${item.width} × ${item.height} px</span>${item.placementLabel?`<span class="dimension-badge">${item.placementLabel}</span>`:""}</div>`:"";
       d.innerHTML=`
+        ${modelBadge}
         <img src="${item.dataUrl}" alt="生成 #${i+1}" style="${item.width&&item.height?`aspect-ratio:${item.width}/${item.height}`:""}"/>
         <span class="gen-status done">完成</span>
         ${dimensionInfo}
@@ -2646,27 +3016,30 @@ function renderGenResults(){
         </div>`;
     }else{
       const err=item.error||"";
-      const visibleErr=document.body.classList.contains("operator-mode")?"生成失败，请联系管理员检查生成服务":err;
+      const visibleErr=document.body.classList.contains("operator-mode")?friendlyLingjingError(err):err;
       const isQuota=err.includes("配额")||err.includes("quota")||err.includes("429");
       const hint=isQuota&&!document.body.classList.contains("operator-mode")?'<br><span style="font-size:.6875rem;color:var(--orange)">免费额度已用完，请等待重置或开通付费计划，也可切换到其他服务商（如千问）</span>':"";
-      d.innerHTML=`<div class="gen-placeholder" style="color:var(--red)"><span>失败 #${i+1}</span><span style="font-size:.75rem;text-align:center;padding:0 12px">${escapeHtml(visibleErr)}${hint}</span></div><span class="gen-status failed">失败</span><div class="gen-actions"><button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem" data-act="del" data-i="${i}">移除</button></div>`;
+      const retryButton=item.modelLabel?`<button class="btn btn-blue" style="padding:6px 12px;font-size:.75rem" data-act="retry" data-i="${i}">重试此模型</button>`:"";
+      d.innerHTML=`${modelBadge}<div class="gen-placeholder" style="color:var(--red)"><span>${escapeHtml(item.modelLabel||"模型")}失败</span><span style="font-size:.75rem;text-align:center;padding:0 12px">${escapeHtml(visibleErr)}${hint}</span></div><span class="gen-status failed">失败</span><div class="gen-actions">${retryButton}<button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem" data-act="del" data-i="${i}">移除</button></div>`;
     }
     d.querySelectorAll("button").forEach(btn=>{
       btn.onclick=()=>{
         const idx=+btn.dataset.i;
         if(btn.dataset.act==="dl"&&genResults[idx].dataUrl){
           const result=genResults[idx];
-          const a=document.createElement("a");a.download=result.width&&result.height?`营销素材-${result.width}x${result.height}-${idx+1}.png`:"ai-gen-"+(idx+1)+".png";a.href=result.dataUrl;a.click();toast("已下载")
+          const modelName=(result.modelLabel||"AI").replace(/[^\w\u4e00-\u9fa5.-]+/g,"-");
+          const a=document.createElement("a");a.download=result.width&&result.height?`${modelName}-${result.width}x${result.height}-${idx+1}.png`:modelName+"-"+(idx+1)+".png";a.href=result.dataUrl;a.click();toast("已下载")
         }
         if(btn.dataset.act==="save"&&genResults[idx].dataUrl){
           const r=genResults[idx];
-          const newA={file:null,dataUrl:r.dataUrl,label:"AI生成-"+(idx+1),cat:"AI生成",prompt:r.prompt};
+          const newA={file:null,dataUrl:r.dataUrl,label:(r.modelLabel||"AI")+"-"+(idx+1),cat:"AI生成",prompt:r.prompt};
           ASSETS.push(newA);
           persistUserAssets();
           renderFilters();renderGallery();renderMiniGallery();renderAssetPicker();
           toast("已存入素材库，可在素材库 tab 查看");
           if(typeof TRACKER!=="undefined") TRACKER.log({type:"save_to_gallery",meta:{source:"gen_result"},prompt:r.prompt});
         }
+        if(btn.dataset.act==="retry")retryLingjingResult(idx);
         if(btn.dataset.act==="del"){genResults.splice(idx,1);renderGenResults()}
       };
     });
@@ -2674,93 +3047,90 @@ function renderGenResults(){
   });
 }
 
+function friendlyLingjingError(message=""){
+  const text=String(message);
+  if(/429|限流|频繁|concurr|rate.?limit/i.test(text))return "当前生成任务较多，系统已降低并发；请点击“重试此模型”";
+  if(/quota|配额|余额|欠费|billing/i.test(text))return "当前模型额度不足，请检查灵境账户额度后重试";
+  if(/401|403|AppKey|Authorization|鉴权|权限/i.test(text))return "AppKey 已失效或没有该模型权限，请更新密钥";
+  if(/timeout|超时|暂时无法连接|network|fetch/i.test(text))return "灵境服务响应超时，请稍后点击“重试此模型”";
+  if(/无法转换|图片载入|读取失败/i.test(text))return "图片已生成，但读取或尺寸转换失败，请重试";
+  return text||"模型暂时没有返回图片，请点击“重试此模型”";
+}
+
+async function retryLingjingResult(index){
+  if(location.protocol==="file:"){
+    window.location.href="http://127.0.0.1:8765/index.html";
+    return;
+  }
+  const current=genResults[index];
+  const isOperator=document.body.classList.contains("operator-mode");
+  const context=isOperator?operatorGenerationContext:designerGenerationContext;
+  const modelSpec=LINGJING_MODEL_MATRIX.find(spec=>spec.model===current?.model||spec.label===current?.modelLabel);
+  if(!current||!context||!modelSpec){toast("当前任务信息已失效，请重新发起生成");return}
+  genResults[index]={...current,status:"generating",error:""};
+  renderGenResults();
+  const status=isOperator?$("#operatorServiceStatus"):$("#genStatus");
+  if(isOperator)status.className="operator-service-status ready";
+  status.textContent=`正在重试 ${modelSpec.label}…`;
+  try{
+    const urls=await callLingjingMatrixModelWithRetry(modelSpec,current.prompt,1,2);
+    const processed=await resizeToOperatorPlacement(urls[0],context);
+    if(!processed.normalized)throw new Error(`${modelSpec.label} 图片无法转换为目标尺寸`);
+    const result={status:"done",prompt:current.prompt,dataUrl:processed.dataUrl,width:context.width,height:context.height,placement:context.placement,placementLabel:context.label,normalized:true,model:modelSpec.model,modelLabel:modelSpec.label,provider:"jdcloud-lingjing-matrix",_historySaved:true};
+    genResults[index]=result;
+    addToHistory([result]);
+    if(isOperator)status.className="operator-service-status ready";
+    status.textContent=`${modelSpec.label} 重试成功`;
+    toast(`${modelSpec.label} 已生成`);
+  }catch(error){
+    genResults[index]={...current,status:"failed",error:error.message||"未知错误"};
+    if(isOperator)status.className="operator-service-status error";
+    status.textContent=`${modelSpec.label} 重试失败：${friendlyLingjingError(error.message)}`;
+  }
+  renderGenResults();
+}
+
+function getDesignerOutputContext(){
+  const raw=$("#aiSize").value||"1024x1024";
+  const match=raw.match(/(\d{2,4})\s*[x×*]\s*(\d{2,4})/i);
+  const width=match?+match[1]:1024;
+  const height=match?+match[2]:1024;
+  return {width,height,placement:"designer-custom",label:"设计师输出"};
+}
+
 $("#btnGenerate").onclick=async()=>{
-  const key=getGenerationKey();
-  if(!key){toast("请先在上方填写 API Key");return}
-  const prompt=$("#aiFinalPrompt").value.trim();
+  if(location.protocol==="file:"){
+    $("#genStatus").textContent="正在打开 2.0 生成服务…";
+    window.location.href="http://127.0.0.1:8765/index.html";
+    return;
+  }
+  let prompt=$("#aiFinalPrompt").value.trim();
   if(!prompt){toast("请填写提示词");return}
-  const count=+$("#aiBatchCount").value;
-  const delayMs=(+$("#aiDelay").value||3)*1000;
-  const operatorRunContext=document.body.classList.contains("operator-mode")&&operatorGenerationContext?{...operatorGenerationContext}:null;
-  const runStartIndex=genResults.length;
+  const selectedModels=getSelectedDesignerModels();
+  if(!selectedModels.length){toast("请至少选择一个生成模型");return}
+  const perModelCount=+$("#aiBatchCount").value||1;
+  designerGenerationContext={...getDesignerOutputContext(),prompt,count:perModelCount*selectedModels.length,modelKeys:selectedModels.map(model=>model.key)};
+  if(selectedRefAsset)prompt+=` 视觉灵感参考素材“${selectedRefAsset.label}”，仅提取风格、色彩与核心视觉符号，不复制原图文字、数字或 Logo。`;
 
   genStopped=false;
   $("#btnGenerate").disabled=true;
+  $("#aiBatchCount").disabled=true;
+  setDesignerModelControlsDisabled(true);
   $("#btnStopGen").style.display="inline-flex";
   $("#genProgress").style.display="block";
-
-  let refBase64=null;
-  if(selectedRefAsset){
-    $("#genStatus").textContent="正在编码参考图…";
-    refBase64=await fileToBase64(getAssetSrc(selectedRefAsset));
+  $("#genStatus").textContent=`正在启动 ${selectedModels.length} 个模型 · 共 ${designerGenerationContext.count} 张`;
+  setTimeout(()=>$("#sectionGenerated").scrollIntoView({behavior:"smooth",block:"start"}),120);
+  try{
+    await runLingjingModelMatrix(prompt,designerGenerationContext,perModelCount,selectedModels,"designer");
+  }catch(error){
+    $("#genStatus").textContent=error.message||"多模型生成失败";
+    $("#btnGenerate").disabled=false;
+    $("#aiBatchCount").disabled=false;
+    setDesignerModelControlsDisabled(false);
+    updateDesignerModelSelectionUI();
+    $("#btnStopGen").style.display="none";
+    toast(error.message||"多模型生成失败");
   }
-
-  for(let i=0;i<count;i++){
-    if(genStopped)break;
-    const idx=genResults.length;
-    genResults.push({status:"generating",prompt});
-    renderGenResults();
-    $("#genProgressFill").style.width=((i)/count*100)+"%";
-    $("#genStatus").textContent=`正在生成第 ${i+1}/${count} 张…`;
-    if(operatorRunContext){
-      const operatorStatus=$("#operatorServiceStatus");
-      operatorStatus.className="operator-service-status ready";
-      operatorStatus.textContent=`正在生成 ${i+1}/${count} · ${operatorRunContext.width} × ${operatorRunContext.height} px`;
-    }
-
-    const _provider=$("#aiProvider").value;
-    const _model=$("#aiModel")?.value||"";
-    try{
-      const url=await callImageApi(prompt,refBase64);
-      let finalUrl=url,normalized=false;
-      if(operatorRunContext){
-        const processed=await resizeToOperatorPlacement(url,operatorRunContext);
-        if(!processed.normalized)throw new Error("图片已生成，但无法转换为目标尺寸，请联系管理员检查生成服务的图片访问设置");
-        finalUrl=processed.dataUrl;normalized=processed.normalized;
-      }
-      if(genResults[idx]) genResults[idx]={status:"done",prompt,dataUrl:finalUrl,width:operatorRunContext?.width,height:operatorRunContext?.height,placement:operatorRunContext?.placement,placementLabel:operatorRunContext?.label,normalized};
-      TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"success",meta:{hasRef:!!refBase64,placement:operatorRunContext?.placement||null,outputSize:operatorRunContext?`${operatorRunContext.width}x${operatorRunContext.height}`:null}});
-    }catch(e){
-      if(genResults[idx]) genResults[idx]={status:"failed",prompt,error:e.message||"未知错误"};
-      TRACKER.log({type:"generate",provider:_provider,model:_model,prompt,status:"failed",error:e.message||"未知错误"});
-    }
-    renderGenResults();
-    $("#genProgressFill").style.width=((i+1)/count*100)+"%";
-
-    if(i<count-1&&!genStopped) await sleep(delayMs);
-  }
-
-  genResults.forEach((r,i)=>{if(r.status==="generating") genResults[i]={status:"failed",prompt:r.prompt,error:"生成中断"}});
-  renderGenResults();
-
-  const newDoneItems=genResults.filter(r=>r.status==="done"&&r.dataUrl&&!r._historySaved);
-  if(newDoneItems.length){
-    newDoneItems.forEach(r=>r._historySaved=true);
-    addToHistory(newDoneItems);
-  }
-
-  $("#btnGenerate").disabled=false;
-  $("#btnStopGen").style.display="none";
-  $("#genProgress").style.display="none";
-  $("#genStatus").textContent=genStopped?"已停止":"全部完成";
-  if(operatorRunContext){
-    const operatorStatus=$("#operatorServiceStatus");
-    const operatorResults=genResults.slice(runStartIndex);
-    const successCount=operatorResults.filter(result=>result.status==="done").length;
-    const failedCount=operatorResults.filter(result=>result.status==="failed").length;
-    operatorStatus.className="operator-service-status "+(!genStopped&&successCount>0?"ready":"error");
-    operatorStatus.textContent=genStopped
-      ?`已停止 · 完成 ${successCount}/${operatorRunContext.count}`
-      :successCount===operatorRunContext.count
-        ?`生成完成 · ${successCount} 张 · ${operatorRunContext.width} × ${operatorRunContext.height} px`
-        :successCount>0
-          ?`完成 ${successCount}/${operatorRunContext.count} · ${failedCount} 张失败`
-          :"生成失败，请联系管理员检查生成服务";
-    $("#btnOperatorGenerate").disabled=false;
-    $("#operatorBatchCount").disabled=false;
-    $("#btnOperatorStop").style.display="none";
-  }
-  toast(genStopped?"已停止生成":"批量生成完成");
 };
 
 $("#btnStopGen").onclick=()=>{
@@ -2804,7 +3174,7 @@ function addToHistory(items){
   const model=($("#aiModel")||{}).value||"unknown";
   const provider=($("#aiProvider")||{}).value||"unknown";
   items.forEach(item=>{
-    hist.push({id:Date.now()+"_"+Math.random().toString(36).slice(2,8),dataUrl:item.dataUrl,prompt:item.prompt,date:ts,model,provider,width:item.width||null,height:item.height||null,placement:item.placement||null,placementLabel:item.placementLabel||null});
+    hist.push({id:Date.now()+"_"+Math.random().toString(36).slice(2,8),dataUrl:item.dataUrl,prompt:item.prompt,date:ts,model:item.model||model,modelLabel:item.modelLabel||item.model||model,provider:item.provider||provider,width:item.width||null,height:item.height||null,placement:item.placement||null,placementLabel:item.placementLabel||null});
   });
   saveHistory(hist);
   renderHistory();
@@ -2847,10 +3217,11 @@ function renderHistory(){
     const promptShort=(item.prompt||"").substring(0,80);
     const historyDimension=item.width&&item.height?`<div class="gen-dim-row"><span class="dimension-badge">${item.width} × ${item.height} px</span>${item.placementLabel?`<span class="dimension-badge">${item.placementLabel}</span>`:""}</div>`:"";
     d.innerHTML=`
+      ${item.modelLabel?`<span class="model-badge" title="${escapeHtml(item.modelLabel)}">${escapeHtml(item.modelLabel)}</span>`:""}
       <img src="${item.dataUrl}" alt="历史 #${i+1}" style="${item.width&&item.height?`aspect-ratio:${item.width}/${item.height}`:""}"/>
       <span class="gen-status done">历史</span>
       ${historyDimension}
-      <div class="hist-date">${item.date||""} · ${item.model||""}</div>
+      <div class="hist-date">${item.date||""} · ${item.modelLabel||item.model||""}</div>
       <div class="hist-prompt-row">
         <span class="hist-prompt-text">${escapeHtml(promptShort)}${promptShort.length<(item.prompt||"").length?"…":""}</span>
         <button class="hist-edit-btn" data-act="editPrompt">编辑</button>
@@ -2965,12 +3336,12 @@ const TRACKER=(function(){
   const CUSTOM_ROLES_KEY="sd_custom_roles",CUSTOM_BIZ_KEY="sd_custom_business";
 
   const DEFAULT_ROLES=["设计","运营","产品","前端"];
-  const DEFAULT_BIZ=["金条","白条","搜索","理财频道","基金","保险"];
+  const DEFAULT_BIZ=["首页","金条","白条","搜索","理财频道","基金","保险"];
 
   let deviceId=localStorage.getItem(DEVICE_KEY)||"";
   let erp=localStorage.getItem(ERP_KEY)||"";
   let role=localStorage.getItem(ROLE_KEY)||"";
-  let business=localStorage.getItem(BIZ_KEY)||"";
+  let business=localStorage.getItem(BIZ_KEY)||"首页";
 
   function loadCustomList(k){try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(e){return[]}}
   function saveCustomList(k,arr){localStorage.setItem(k,JSON.stringify(arr))}
@@ -2990,7 +3361,7 @@ const TRACKER=(function(){
       <div style="margin-bottom:14px;text-align:left">
         <label style="display:block;font-size:.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:.4px">${label}</label>
         <div style="display:flex;gap:8px">
-          <select class="tk-select" style="flex:1;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;font-family:inherit;outline:none;cursor:pointer">
+          <select class="tk-select" style="flex:1;height:43px;min-height:43px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;line-height:1.4;font-family:inherit;outline:none;cursor:pointer">
             <option value="">${placeholder}</option>
             ${opts}
             <option value="__custom__">+ 自定义…</option>
@@ -3070,7 +3441,7 @@ const TRACKER=(function(){
 
         <div id="tkErpField" style="margin-bottom:14px;text-align:left">
           <label style="display:block;font-size:.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:.4px">ERP（员工号）</label>
-          <input id="tkErpInput" type="text" placeholder="例如：zhangsan01" maxlength="32" style="width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;font-family:inherit;outline:none;transition:.25s"/>
+          <input id="tkErpInput" type="text" placeholder="例如：zhangsan01" maxlength="32" style="width:100%;height:43px;min-height:43px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--elevated);color:var(--text);font-size:.85rem;line-height:1.4;font-family:inherit;outline:none;transition:.25s"/>
         </div>
 
         <div id="tkRoleField">${buildSelectGroup("角色",DEFAULT_ROLES,loadCustomList(CUSTOM_ROLES_KEY),"请选择角色")}</div>

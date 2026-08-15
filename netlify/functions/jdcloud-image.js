@@ -1,5 +1,27 @@
 const ALLOWED_ACTIONS = new Set(["submit", "query"]);
 const UPSTREAM_BASE = "https://model.jdcloud.com/joycreator/openApi";
+const MODELS = {
+  "gpt-image-2": {
+    apiId: "603",
+    params: { model: "gpt-image-2", quality: "medium", size: "1024x1024", background: "auto" },
+  },
+  "seedream-5-pro": {
+    apiId: "708",
+    params: { model: "doubao-seedream-5-0-pro-260628", resolution: "1K", size: "1024x1024" },
+  },
+  "banana-2-flash": {
+    apiId: "705",
+    params: { model: "Gemini-3.1-Flash-Image-Preview", aspect_ratio: "1:1", image_size: "1K" },
+  },
+  "banana-pro": {
+    apiId: "702",
+    params: { model: "Gemini 3-Pro-Image-Preview", aspect_ratio: "1:1", image_size: "1K" },
+  },
+  "banana-flash": {
+    apiId: "704",
+    params: { model: "Gemini-2.5-flash-image", aspect_ratio: "1:1" },
+  },
+};
 
 const responseHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -53,13 +75,25 @@ exports.handler = async function handler(event) {
       "2048x2048", "1440x2160", "2160x1440", "1440x1920", "1920x1440", "2048x1152", "1152x2048",
       "2880x2880", "2176x3264", "3264x2176", "2160x2880", "2880x2160", "3840x2160", "2160x3840",
     ]);
-    const size = allowedSizes.has(input.size) ? input.size : "1024x1024";
-    const quality = ["low", "medium", "high"].includes(input.quality) ? input.quality : "medium";
-    const background = ["auto", "transparent", "opaque"].includes(input.background) ? input.background : "auto";
+    const modelKey = String(input.modelKey || "gpt-image-2");
+    const config = MODELS[modelKey];
+    if (!config) {
+      return jsonResponse(400, { error: { message: "不支持的模型" } });
+    }
+    const taskNum = Number(input.taskNum || 1);
+    if (![1, 2].includes(taskNum)) {
+      return jsonResponse(400, { error: { message: "单任务生成数量仅支持 1 或 2" } });
+    }
+    const params = { ...config.params, prompt, taskNum };
+    if (modelKey === "gpt-image-2") {
+      params.size = allowedSizes.has(input.size) ? input.size : params.size;
+      params.quality = ["low", "medium", "high"].includes(input.quality) ? input.quality : params.quality;
+      params.background = ["auto", "transparent", "opaque"].includes(input.background) ? input.background : params.background;
+    }
     endpoint = "submitTask";
     upstreamBody = {
-      apiId: "603",
-      params: { prompt, model: "gpt-image-2", quality, size, background, taskNum: 1 },
+      apiId: config.apiId,
+      params,
     };
   }
 
